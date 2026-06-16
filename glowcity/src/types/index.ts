@@ -8,6 +8,19 @@ export type PaymentStatus = 'unpaid' | 'paid' | 'refunded'
 export type UserRole = 'customer' | 'salon_owner' | 'admin'
 export type PromotionType = 'instagram' | 'whatsapp' | 'website'
 
+// Nail service sub-types for granular filtering
+export type NailSubType =
+  | 'gel-nails'
+  | 'soft-gel'
+  | 'hard-gel'
+  | 'acrylic-nails'
+  | 'nail-art'
+  | 'manicure'
+  | 'pedicure'
+  | 'chrome-nails'
+  | 'ombre-nails'
+  | 'bridal-nails'
+
 export interface GeoPoint {
   latitude: number
   longitude: number
@@ -167,6 +180,7 @@ export interface SearchFilters {
   area?: string
   priceRange?: PriceRange[]
   categories?: ServiceCategory[]
+  nailSubTypes?: NailSubType[]
   minRating?: number
   maxPrice?: number
   tags?: string[]
