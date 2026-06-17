@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { Skeleton } from '@/components/ui/skeleton'
 import { SalonCard } from './SalonCard'
 import { useDiscoveryStore } from '@/store/discoveryStore'
-import { setVisibleSalons } from './SalonMapWrapper'
+import { setVisibleSalons } from './visibleSalons'
 import { haversineKm, formatDistance, getAreaCoords } from '@/utils/geo'
 import type { Salon } from '@/types'
 

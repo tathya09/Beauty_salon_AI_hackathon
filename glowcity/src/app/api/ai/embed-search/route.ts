@@ -148,7 +148,7 @@ export async function POST(req: NextRequest) {
       let salons = isFirebaseConfigured()
         ? await searchSalonsByTags(nailTags, city)
         : (await getGeminiGeneratedSalons().catch(() => [])).filter(
-            (s) => s.city === city && nailTags.some((t) => s.tags.includes(t))
+            (s) => s.city === city && nailTags.some((tag: string) => s.tags.includes(tag))
           )
       if (salons.length === 0) {
         const fb = await searchSalonsByTags(['nails', 'gel-nails', 'manicure', 'nail-art'], city)

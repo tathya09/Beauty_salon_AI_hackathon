@@ -10,6 +10,8 @@ Analyse the provided face/skin photo and return a JSON object ONLY (no markdown,
   "skinType": "string (e.g. Dry, Oily, Combination, Normal, Sensitive)",
   "concerns": ["array of visible concerns like acne, pigmentation, dullness, dark circles, uneven tone, etc."],
   "overallScore": number between 1-10,
+  "confidence": number between 0 and 1,
+  "analysisSummary": "short explanation of the visible findings and why the score is reasonable",
   "glowTip": "one personalized tip for glowing skin",
   "recommendations": [
     {
@@ -39,7 +41,7 @@ Analyse the provided face/skin photo and return a JSON object ONLY (no markdown,
   ]
 }
 
-Be specific, helpful, and accurate. Base analysis on visible skin characteristics only.`
+Be specific, helpful, and accurate. Base analysis on visible skin characteristics only. If the image quality is poor, lower confidence and mention that in the analysisSummary.`
 
 export async function POST(req: NextRequest) {
   try {
@@ -90,6 +92,8 @@ function getMockResult() {
     skinType: 'Combination',
     concerns: ['Mild dehydration', 'Uneven skin tone', 'T-zone oiliness'],
     overallScore: 7,
+    confidence: 0.72,
+    analysisSummary: 'This estimate is based on a typical combination-skin pattern and visible dryness around the cheeks with mild oiliness in the T-zone.',
     glowTip: 'Use a gentle hydrating serum daily and apply SPF 30+ every morning for a natural glow.',
     recommendations: [
       {

@@ -16,28 +16,25 @@ import { useEffect, useState } from 'react'
 import { SalonMap } from './SalonMap'
 import { useDiscoveryStore } from '@/store/discoveryStore'
 import type { Salon } from '@/types'
+import { getVisibleSalons, subscribeVisibleSalons } from './visibleSalons'
 
 interface SalonMapWrapperProps {
   initialSalons: Salon[]
 }
 
-// We extend the discovery store with a visible salons list.
-// Using module-level state for simplicity (avoids store churn).
-let _visibleSalons: Salon[] = []
-const listeners = new Set<() => void>()
-
-export function setVisibleSalons(salons: Salon[]) {
-  _visibleSalons = salons
-  listeners.forEach((l) => l())
-}
-
 export function useVisibleSalons(fallback: Salon[]): Salon[] {
-  const [salons, setSalons] = useState<Salon[]>(_visibleSalons.length ? _visibleSalons : fallback)
+  const [salons, setSalons] = useState<Salon[]>(() => {
+    const visible = getVisibleSalons()
+    return visible.length ? visible : fallback
+  })
+
   useEffect(() => {
-    const update = () => setSalons([..._visibleSalons])
-    listeners.add(update)
-    return () => { listeners.delete(update) }
+    const unsubscribe = subscribeVisibleSalons(() => {
+      setSalons([...getVisibleSalons()])
+    })
+    return unsubscribe
   }, [])
+
   return salons
 }
 
@@ -56,11 +53,11 @@ export function SalonMapWrapper({ initialSalons }: SalonMapWrapperProps) {
           <span className="text-gray-600">You</span>
         </div>
         <div className="flex items-center gap-2">
-          <img src="https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-gold.png" className="h-4" alt="nearest" />
+          <span className="inline-block h-4 w-4 rounded-sm bg-amber-500" aria-hidden="true" />
           <span className="text-gray-600">Nearest salon</span>
         </div>
         <div className="flex items-center gap-2">
-          <img src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png" className="h-4" alt="salon" />
+          <span className="inline-block h-4 w-4 rounded-sm bg-rose-500" aria-hidden="true" />
           <span className="text-gray-600">Salon</span>
         </div>
         {userLocation && (

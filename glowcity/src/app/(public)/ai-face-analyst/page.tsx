@@ -4,6 +4,7 @@ import { useRef, useState, useCallback, useEffect } from 'react'
 import { Camera, RefreshCw, Sparkles, Leaf, FlaskConical, Stethoscope, Flower2, ArrowRight, X } from 'lucide-react'
 import Link from 'next/link'
 import { MegaNav } from '@/components/discovery/MegaNav'
+import { preprocessFaceImage, type FaceQualityReview } from '@/lib/ai/faceAnalysis'
 
 type TreatmentType = 'natural' | 'ayurvedic' | 'chemical' | 'dermat'
 
@@ -18,6 +19,8 @@ interface AnalysisResult {
   }[]
   overallScore: number
   glowTip: string
+  confidence?: number
+  analysisSummary?: string
 }
 
 const TREATMENT_META: Record<TreatmentType, { icon: React.ReactNode; color: string; bg: string; border: string }> = {
@@ -39,6 +42,7 @@ export default function AIFaceAnalystPage() {
   const [error,          setError]          = useState('')
   const [selectedType,   setSelectedType]   = useState<TreatmentType | null>(null)
   const [cameraError,    setCameraError]    = useState('')
+  const [imageQuality,   setImageQuality]   = useState<FaceQualityReview | null>(null)
 
   // ── KEY FIX: assign srcObject via effect so video element is always mounted ──
   useEffect(() => {
@@ -104,14 +108,21 @@ export default function AIFaceAnalystPage() {
     setAnalysing(true)
     setError('')
     try {
+      const prepared = await preprocessFaceImage(capturedImage)
+      setCapturedImage(prepared.dataUrl)
+      setImageQuality(prepared.quality)
+
       const res = await fetch('/api/ai/face-analyst', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ imageBase64: capturedImage.split(',')[1], preferredType: selectedType }),
+        body: JSON.stringify({ imageBase64: prepared.dataUrl.split(',')[1], preferredType: selectedType }),
       })
       if (!res.ok) throw new Error('Analysis failed')
       const data = await res.json()
-      setResult(data)
+      const confidence = typeof data.confidence === 'number'
+        ? data.confidence
+        : Math.min(0.99, Math.max(0.1, (prepared.quality.score / 100) * 0.6 + ((data.overallScore || 0) / 10) * 0.4))
+      setResult({ ...data, confidence })
     } catch {
       setError('Analysis failed. Please try again.')
     } finally {
@@ -123,6 +134,7 @@ export default function AIFaceAnalystPage() {
     stopStream()
     setCapturedImage(null)
     setResult(null)
+    setImageQuality(null)
     setError('')
     setCameraError('')
   }, [stopStream])
@@ -201,6 +213,25 @@ export default function AIFaceAnalystPage() {
             {cameraError && (
               <div className="bg-orange-50 border border-orange-200 text-orange-700 text-sm px-4 py-3 rounded-xl">
                 {cameraError}
+              </div>
+            )}
+
+            {imageQuality && (
+              <div className="bg-white rounded-xl border border-gray-100 p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Image quality</p>
+                    <p className="text-sm font-semibold text-gray-800">{imageQuality.label} · {imageQuality.score}/100</p>
+                  </div>
+                  <span className="text-xs px-2 py-1 rounded-full bg-violet-50 text-violet-700 font-medium">
+                    {Math.round((imageQuality.score / 100) * 100)}% usable
+                  </span>
+                </div>
+                <ul className="mt-3 space-y-1 text-xs text-gray-500">
+                  {imageQuality.notes.map((note) => (
+                    <li key={note}>• {note}</li>
+                  ))}
+                </ul>
               </div>
             )}
 
@@ -361,8 +392,20 @@ export default function AIFaceAnalystPage() {
                       <p className="font-semibold text-lg">{result.skinType}</p>
                     </div>
                   </div>
-                  <p className="mt-3 text-sm opacity-90 italic">&ldquo;{result.glowTip}&rdquo;</p>
+                  <div className="mt-3 flex items-center justify-between gap-3">
+                    <p className="text-sm opacity-90 italic">&ldquo;{result.glowTip}&rdquo;</p>
+                    <span className="text-xs bg-white/15 px-2.5 py-1 rounded-full font-medium">
+                      {Math.round((result.confidence ?? 0.7) * 100)}% confidence
+                    </span>
+                  </div>
                 </div>
+
+                {result.analysisSummary && (
+                  <div className="bg-white rounded-xl border border-gray-100 p-4">
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">AI summary</p>
+                    <p className="text-sm text-gray-700">{result.analysisSummary}</p>
+                  </div>
+                )}
 
                 {result.concerns.length > 0 && (
                   <div className="bg-white rounded-xl border border-gray-100 p-4">

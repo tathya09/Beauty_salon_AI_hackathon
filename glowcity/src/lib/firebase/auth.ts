@@ -11,6 +11,11 @@ import {
 } from 'firebase/auth'
 import { auth } from './client'
 
+function getErrorMessage(error: unknown, fallback: string): string {
+  if (error instanceof Error && error.message) return error.message
+  return fallback
+}
+
 const googleProvider = new GoogleAuthProvider()
 googleProvider.addScope('email')
 googleProvider.addScope('profile')
@@ -26,8 +31,9 @@ export async function signInWithEmail(email: string, password: string): Promise<
   try {
     const result = await signInWithEmailAndPassword(auth, email, password)
     return result.user
-  } catch (err: any) {
-    switch (err.code) {
+  } catch (error: unknown) {
+    const code = typeof error === 'object' && error !== null && 'code' in error ? String(error.code) : ''
+    switch (code) {
       case 'auth/user-not-found':
       case 'auth/invalid-credential':
         throw new Error('No account found with this email. Please sign up first.')
@@ -54,9 +60,11 @@ export async function registerWithEmail(
     const result = await createUserWithEmailAndPassword(auth, email, password)
     await updateProfile(result.user, { displayName: name })
     return result.user
-  } catch (err: any) {
-    console.error('registerWithEmail error code:', err.code, 'message:', err.message)
-    switch (err.code) {
+  } catch (error: unknown) {
+    const code = typeof error === 'object' && error !== null && 'code' in error ? String(error.code) : ''
+    const message = getErrorMessage(error, 'Registration failed. Please try again.')
+    console.error('registerWithEmail error code:', code, 'message:', message)
+    switch (code) {
       case 'auth/email-already-in-use':
         throw new Error('An account with this email already exists. Please log in instead.')
       case 'auth/invalid-email':
@@ -70,7 +78,7 @@ export async function registerWithEmail(
       case 'auth/too-many-requests':
         throw new Error('Too many attempts. Please try again in a few minutes.')
       default:
-        throw new Error(err.message ?? 'Registration failed. Please try again.')
+        throw new Error(message)
     }
   }
 }

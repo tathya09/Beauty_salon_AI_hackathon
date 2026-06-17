@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { collection, query, where, getDocs, orderBy, limit, Timestamp } from 'firebase/firestore'
+import { collection, query, where, getDocs, orderBy, limit } from 'firebase/firestore'
 import { db } from '@/lib/firebase/client'
 import { useAuth } from '@/hooks/useAuth'
 import { Card, CardContent } from '@/components/ui/card'
@@ -16,7 +16,6 @@ export default function OwnerOverviewPage() {
   const { user } = useAuth()
   const [stats, setStats] = useState<Stats>({ todayCount: 0, weekRevenue: 0, pendingCount: 0 })
   const [recentBookings, setRecentBookings] = useState<Booking[]>([])
-  const [salonId, setSalonId] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -27,7 +26,6 @@ export default function OwnerOverviewPage() {
       const salonsSnap = await getDocs(query(collection(db, 'salons'), where('ownerId', '==', user!.uid), limit(1)))
       if (salonsSnap.empty) { setLoading(false); return }
       const sid = salonsSnap.docs[0].id
-      setSalonId(sid)
 
       // Recent bookings
       const bookingsSnap = await getDocs(query(
@@ -98,8 +96,8 @@ export default function OwnerOverviewPage() {
                 <tbody className="divide-y">
                   {recentBookings.map((b) => (
                     <tr key={b.id} className="py-2">
-                      <td className="py-2 text-gray-600">{(b as any).userEmail?.split('@')[0] ?? 'Customer'}</td>
-                      <td className="py-2">{(b as any).serviceName ?? '—'}</td>
+                      <td className="py-2 text-gray-600">{((b as Booking & { userEmail?: string }).userEmail ?? 'Customer').split('@')[0]}</td>
+                      <td className="py-2">{(b as Booking & { serviceName?: string }).serviceName ?? '—'}</td>
                       <td className="py-2">{formatDate(b.slot.date)}</td>
                       <td className="py-2">{formatTime(b.slot.startTime)}</td>
                       <td className="py-2">

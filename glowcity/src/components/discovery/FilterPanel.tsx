@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { useDiscoveryStore } from '@/store/discoveryStore'
 import { ChevronDown, X, Leaf, FlaskConical, Stethoscope, Flower2 } from 'lucide-react'
-import type { PriceRange, ServiceCategory, NailSubType } from '@/types'
+import type { PriceRange, ServiceCategory } from '@/types'
 
 // ── Price ranges ──────────────────────────────────────────────
 const PRICE_RANGES: { label: string; value: PriceRange }[] = [

@@ -51,7 +51,7 @@ export default function StyleMatchPage() {
       isVerified: true,
       ownerId: '',
       openingHours: {},
-      createdAt: null as any,
+      createdAt: null as unknown as Salon['createdAt'],
     }
   }
 

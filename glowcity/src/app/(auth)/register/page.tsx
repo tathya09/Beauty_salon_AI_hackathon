@@ -14,6 +14,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { registerWithEmail, signInWithGoogle } from '@/lib/firebase/auth'
 import type { UserRole } from '@/types'
 
+function getErrorMessage(error: unknown, fallback: string): string {
+  if (error instanceof Error && error.message) return error.message
+  return fallback
+}
+
 const registerSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
   email: z.email('Enter a valid email address'),
@@ -62,9 +67,9 @@ export default function RegisterPage() {
 
       toast.success(`Welcome to GlowCity, ${data.name}!`)
       router.push(role === 'salon_owner' ? '/dashboard/overview' : '/')
-    } catch (err: any) {
-      console.error('Registration error:', err)
-      toast.error(err.message ?? 'Registration failed. Please try again.')
+    } catch (error: unknown) {
+      console.error('Registration error:', error)
+      toast.error(getErrorMessage(error, 'Registration failed. Please try again.'))
     } finally {
       setLoading(false)
     }
@@ -89,8 +94,8 @@ export default function RegisterPage() {
         toast.success(`Welcome to GlowCity, ${user.displayName || 'there'}!`)
         router.push(role === 'salon_owner' ? '/dashboard/overview' : '/')
       }
-    } catch (err: any) {
-      toast.error(err.message ?? 'Google sign-up failed.')
+    } catch (error: unknown) {
+      toast.error(getErrorMessage(error, 'Google sign-up failed.'))
     } finally {
       setGoogleLoading(false)
     }

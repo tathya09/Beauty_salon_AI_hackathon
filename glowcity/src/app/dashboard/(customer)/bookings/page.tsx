@@ -12,6 +12,11 @@ import { formatINR, formatDate, formatTime } from '@/utils/format'
 import { toast } from 'sonner'
 import type { Booking, BookingStatus } from '@/types'
 
+type BookingWithMeta = Booking & {
+  salonName?: string
+  serviceName?: string
+}
+
 const STATUS_COLORS: Record<BookingStatus, string> = {
   pending: 'bg-yellow-100 text-yellow-700',
   confirmed: 'bg-green-100 text-green-700',
@@ -20,14 +25,15 @@ const STATUS_COLORS: Record<BookingStatus, string> = {
 }
 
 function BookingCard({ booking, onCancel }: { booking: Booking; onCancel: (id: string) => void }) {
+  const bookingWithMeta = booking as BookingWithMeta
   const isUpcoming = ['pending', 'confirmed'].includes(booking.status)
   return (
     <Card>
       <CardContent className="p-4">
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1 min-w-0">
-            <p className="font-semibold text-gray-900 truncate">{(booking as any).salonName ?? 'Salon'}</p>
-            <p className="text-sm text-gray-500 mt-0.5 truncate">{(booking as any).serviceName ?? booking.serviceIds.join(', ')}</p>
+            <p className="font-semibold text-gray-900 truncate">{bookingWithMeta.salonName ?? 'Salon'}</p>
+            <p className="text-sm text-gray-500 mt-0.5 truncate">{bookingWithMeta.serviceName ?? booking.serviceIds.join(', ')}</p>
             <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
               <span>📅 {formatDate(booking.slot.date)}</span>
               <span>🕐 {formatTime(booking.slot.startTime)}</span>

@@ -20,19 +20,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         try {
           const userSnap = await getDoc(userRef)
           if (!userSnap.exists()) {
-            const newUser: Omit<User, 'createdAt' | 'stylePreferences'> & { createdAt: any } = {
+            const newUser = {
               uid: firebaseUser.uid,
               displayName: firebaseUser.displayName ?? 'User',
               email: firebaseUser.email ?? '',
               phone: firebaseUser.phoneNumber ?? undefined,
               photoURL: firebaseUser.photoURL ?? undefined,
-              role: 'customer',
+              role: 'customer' as const,
               favoritesSalonIds: [],
               bookingHistory: [],
               createdAt: serverTimestamp(),
             }
             await setDoc(userRef, newUser)
-            setUser({ ...newUser, createdAt: null as any })
+            setUser({
+              ...newUser,
+              createdAt: null as unknown as User['createdAt'],
+            })
           } else {
             setUser(userSnap.data() as User)
           }

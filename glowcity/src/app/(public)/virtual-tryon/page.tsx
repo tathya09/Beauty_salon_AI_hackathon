@@ -54,7 +54,6 @@ export default function VirtualTryOnPage() {
   const [selectedHairColor, setSelectedHairColor] = useState<string | null>(null)
   const [selectedNailColor, setSelectedNailColor] = useState<string | null>(null)
   const [selectedMakeup, setSelectedMakeup] = useState(MAKEUP_LOOKS[0])
-  const [isLive, setIsLive] = useState(false)
 
   // KEY FIX: assign srcObject after camera state flips so DOM node is mounted
   useEffect(() => {
@@ -71,7 +70,6 @@ export default function VirtualTryOnPage() {
         audio: false,
       })
       streamRef.current = s
-      setIsLive(true)
       setCameraOn(true)
       setCapturedImage(null)
     } catch {
@@ -83,7 +81,6 @@ export default function VirtualTryOnPage() {
     streamRef.current?.getTracks().forEach((t) => t.stop())
     streamRef.current = null
     setCameraOn(false)
-    setIsLive(false)
   }, [])
 
   const capture = useCallback(() => {

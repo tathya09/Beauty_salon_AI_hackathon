@@ -1,6 +1,4 @@
-/// <reference path="../types/ngeohash.d.ts" />
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const ngeohash = require('ngeohash') as typeof import('ngeohash')
+import ngeohash from 'ngeohash'
 
 export function encodeGeohash(lat: number, lng: number, precision = 6): string {
   return ngeohash.encode(lat, lng, precision)

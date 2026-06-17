@@ -22,7 +22,12 @@ export async function getAvailableSlots(salonId: string, date: string): Promise<
       }
       return slot.isAvailable
     })
-    .map(({ lockedUntil, ...slot }) => slot as TimeSlot)
+    .map((slot) => ({
+      date: slot.date,
+      startTime: slot.startTime,
+      endTime: slot.endTime,
+      isAvailable: slot.isAvailable,
+    }))
     .sort((a, b) => a.startTime.localeCompare(b.startTime))
 }
 

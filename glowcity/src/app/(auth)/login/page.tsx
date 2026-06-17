@@ -13,6 +13,11 @@ import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { signInWithGoogle, signInWithEmail } from '@/lib/firebase/auth'
 
+function getErrorMessage(error: unknown, fallback: string): string {
+  if (error instanceof Error && error.message) return error.message
+  return fallback
+}
+
 const loginSchema = z.object({
   email: z.email('Enter a valid email address'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
@@ -48,8 +53,8 @@ export default function LoginPage() {
       await syncUserSession(idToken, user.displayName ?? undefined)
       toast.success(`Welcome back, ${user.displayName || 'there'}!`)
       router.push('/')
-    } catch (err: any) {
-      toast.error(err.message ?? 'Sign in failed. Please try again.')
+    } catch (error: unknown) {
+      toast.error(getErrorMessage(error, 'Sign in failed. Please try again.'))
     } finally {
       setLoading(false)
     }
@@ -69,8 +74,8 @@ export default function LoginPage() {
       toast.success(`Welcome${data.isNewUser ? '' : ' back'}, ${user.displayName || 'there'}!`)
       // New Google users go to register to pick a role
       router.push(data.isNewUser ? '/register' : '/')
-    } catch (err: any) {
-      toast.error(err.message ?? 'Google sign-in failed.')
+    } catch (error: unknown) {
+      toast.error(getErrorMessage(error, 'Google sign-in failed.'))
     } finally {
       setGoogleLoading(false)
     }

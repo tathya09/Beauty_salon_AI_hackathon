@@ -7,6 +7,26 @@ import { ChevronDown, Mic, MicOff, Sparkles, Camera, Brain, Leaf } from 'lucide-
 import { useDiscoveryStore } from '@/store/discoveryStore'
 import type { ServiceCategory } from '@/types'
 
+type SpeechRecognizerInstance = {
+  lang: string
+  continuous: boolean
+  interimResults: boolean
+  onstart: (() => void) | null
+  onend: (() => void) | null
+  onresult: ((event: { results: ArrayLike<ArrayLike<{ transcript: string }>> }) => void) | null
+  start: () => void
+  stop: () => void
+}
+
+type SpeechRecognizerConstructor = new () => SpeechRecognizerInstance
+
+declare global {
+  interface Window {
+    webkitSpeechRecognition?: SpeechRecognizerConstructor
+    SpeechRecognition?: SpeechRecognizerConstructor
+  }
+}
+
 // ── Service mega-menu data ──────────────────────────────────────
 const SERVICES_MENU = [
   {
@@ -114,10 +134,11 @@ export function MegaNav() {
   const [listening, setListening] = useState(false)
   const [voiceText, setVoiceText] = useState('')
   const navRef = useRef<HTMLDivElement>(null)
-  const recognitionRef = useRef<SpeechRecognition | null>(null)
+  const recognitionRef = useRef<SpeechRecognizerInstance | null>(null)
 
   // Close on outside click
   useEffect(() => {
+    if (typeof document === 'undefined') return
     function handler(e: MouseEvent) {
       if (navRef.current && !navRef.current.contains(e.target as Node)) {
         setActiveMenu(null)
@@ -129,7 +150,11 @@ export function MegaNav() {
 
   // ── Voice navigation ──────────────────────────────────────────
   function toggleVoice() {
-    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+    if (typeof window === 'undefined') return
+
+    const hasSpeechApi =
+      'webkitSpeechRecognition' in window || 'SpeechRecognition' in window
+    if (!hasSpeechApi) {
       alert('Voice search is not supported in this browser. Try Chrome.')
       return
     }
@@ -141,8 +166,17 @@ export function MegaNav() {
     }
 
     const SpeechRecognitionAPI =
-      (window as typeof window & { webkitSpeechRecognition?: typeof SpeechRecognition }).webkitSpeechRecognition ||
+      (window as typeof window & {
+        webkitSpeechRecognition?: SpeechRecognizerConstructor
+        SpeechRecognition?: SpeechRecognizerConstructor
+      }).webkitSpeechRecognition ||
       window.SpeechRecognition
+
+    if (!SpeechRecognitionAPI) {
+      alert('Voice search is not supported in this browser. Try Chrome.')
+      return
+    }
+
     const recognition = new SpeechRecognitionAPI()
     recognition.lang = 'en-IN'
     recognition.continuous = false
@@ -151,15 +185,19 @@ export function MegaNav() {
     recognition.onstart = () => setListening(true)
     recognition.onend = () => setListening(false)
 
-    recognition.onresult = (event: SpeechRecognitionEvent) => {
+    recognition.onresult = (event: { results: ArrayLike<ArrayLike<{ transcript: string }>> }) => {
       const transcript = Array.from(event.results)
         .map((r) => r[0].transcript)
         .join('')
       setVoiceText(transcript)
 
-      if (event.results[event.results.length - 1].isFinal) {
-        handleVoiceCommand(transcript.toLowerCase())
-        setVoiceText('')
+      const lastResult = event.results[event.results.length - 1]
+      if (lastResult && lastResult[0] && 'isFinal' in lastResult[0]) {
+        const finalResult = lastResult as ArrayLike<{ transcript: string; isFinal?: boolean }>
+        if (finalResult[0]?.isFinal) {
+          handleVoiceCommand(transcript.toLowerCase())
+          setVoiceText('')
+        }
       }
     }
 

@@ -1,4 +1,4 @@
-import dynamic from 'next/dynamic'
+import nextDynamic from 'next/dynamic'
 import { Suspense } from 'react'
 import { FilterPanel } from '@/components/discovery/FilterPanel'
 import { MegaNav } from '@/components/discovery/MegaNav'
@@ -8,7 +8,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { getTopRatedSalons } from '@/lib/repositories/salonRepository'
 
 // Map loaded client-side only (Leaflet needs window)
-const SalonMapWrapper = dynamic(
+const DynamicSalonMapWrapper = nextDynamic(
   () => import('@/components/discovery/SalonMapWrapper').then((m) => m.SalonMapWrapper),
   {
     ssr: false,
@@ -16,7 +16,8 @@ const SalonMapWrapper = dynamic(
   }
 )
 
-export const revalidate = 300
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 export default async function SalonsPage() {
   const topSalons = await getTopRatedSalons('Mumbai', 20).catch(() => [])
@@ -60,7 +61,7 @@ export default async function SalonsPage() {
             className="hidden lg:block w-[420px] shrink-0 sticky top-28"
             style={{ height: 'calc(100vh - 150px)' }}
           >
-            <SalonMapWrapper initialSalons={topSalons} />
+            <DynamicSalonMapWrapper initialSalons={topSalons} />
           </div>
         </div>
       </div>
