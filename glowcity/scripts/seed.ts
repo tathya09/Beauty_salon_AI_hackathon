@@ -214,11 +214,138 @@ const SALONS = [
   },
 ]
 
+// Additional 10 salons for richer demo data
+const MORE_SALONS = [
+  {
+    id: 'salon-011', name: 'The Polish Bar Worli', slug: 'polish-bar-worli',
+    area: 'Worli', coordinates: { latitude: 19.0176, longitude: 72.8178 },
+    priceRange: 'mid' as const, rating: 4.8, reviewCount: 310,
+    tags: ['nails', 'gel-nails', 'nail-art', 'pedicure', 'manicure'],
+    coverImage: 'https://images.unsplash.com/photo-1604654894610-df63bc536371?w=800',
+    services: [
+      { id: 'svc-011-1', name: 'Gel Nail Art', category: 'nails' as const, duration: 60, price: 900, description: 'Custom gel nail art designs' },
+      { id: 'svc-011-2', name: 'Spa Pedicure', category: 'nails' as const, duration: 50, price: 800, description: 'Relaxing spa pedicure with scrub' },
+      { id: 'svc-011-3', name: 'Acrylic Extensions', category: 'nails' as const, duration: 90, price: 1500, description: 'Full set acrylic nail extensions' },
+    ],
+  },
+  {
+    id: 'salon-012', name: 'Studio Amore Santacruz', slug: 'studio-amore-santacruz',
+    area: 'Santacruz West', coordinates: { latitude: 19.0806, longitude: 72.8453 },
+    priceRange: 'luxury' as const, rating: 4.9, reviewCount: 189,
+    tags: ['bridal', 'makeup', 'hair-color', 'balayage', 'luxury'],
+    coverImage: 'https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=800',
+    services: [
+      { id: 'svc-012-1', name: 'Bridal Makeup', category: 'bridal' as const, duration: 180, price: 12000, description: 'Professional bridal makeup with airbrush' },
+      { id: 'svc-012-2', name: 'Balayage + Toner', category: 'hair' as const, duration: 150, price: 5500, description: 'Seamless balayage with custom toner' },
+      { id: 'svc-012-3', name: 'Party Makeup', category: 'skin' as const, duration: 60, price: 2500, description: 'Glam party makeup look' },
+    ],
+  },
+  {
+    id: 'salon-013', name: 'Trim & Groom Goregaon', slug: 'trim-groom-goregaon',
+    area: 'Goregaon West', coordinates: { latitude: 19.1663, longitude: 72.8493 },
+    priceRange: 'budget' as const, rating: 4.3, reviewCount: 221,
+    tags: ['grooming', 'haircut', 'beard', 'mens', 'hair-spa'],
+    coverImage: 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=800',
+    services: [
+      { id: 'svc-013-1', name: 'Men\'s Haircut', category: 'grooming' as const, duration: 30, price: 350, description: 'Classic men\'s styling' },
+      { id: 'svc-013-2', name: 'Hot Towel Shave', category: 'grooming' as const, duration: 30, price: 300, description: 'Traditional hot towel shave' },
+      { id: 'svc-013-3', name: 'D-Tan Pack', category: 'skin' as const, duration: 45, price: 400, description: 'Brightening D-Tan treatment' },
+    ],
+  },
+  {
+    id: 'salon-014', name: 'Glow & Go Thane', slug: 'glow-go-thane',
+    area: 'Thane West', coordinates: { latitude: 19.2183, longitude: 72.9781 },
+    priceRange: 'mid' as const, rating: 4.5, reviewCount: 178,
+    tags: ['facial', 'skin', 'cleanup', 'hair-color', 'waxing'],
+    coverImage: 'https://images.unsplash.com/photo-1559599101-f09722fb4948?w=800',
+    services: [
+      { id: 'svc-014-1', name: 'Hydra Facial', category: 'skin' as const, duration: 75, price: 2200, description: 'Deep hydration facial with serum' },
+      { id: 'svc-014-2', name: 'Global Hair Color', category: 'hair' as const, duration: 90, price: 1800, description: 'Full head color with nourishing treatment' },
+      { id: 'svc-014-3', name: 'Rica Waxing (full legs)', category: 'skin' as const, duration: 40, price: 700, description: 'Painless rica wax' },
+    ],
+  },
+  {
+    id: 'salon-015', name: 'Regal Spa Chembur', slug: 'regal-spa-chembur',
+    area: 'Chembur', coordinates: { latitude: 19.0620, longitude: 72.8999 },
+    priceRange: 'mid' as const, rating: 4.6, reviewCount: 145,
+    tags: ['spa', 'massage', 'skin', 'facial', 'hair-spa'],
+    coverImage: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=800',
+    services: [
+      { id: 'svc-015-1', name: 'Aromatherapy Massage', category: 'spa' as const, duration: 60, price: 1800, description: 'Relaxing aromatherapy full body massage' },
+      { id: 'svc-015-2', name: 'Vitamin C Facial', category: 'skin' as const, duration: 60, price: 1500, description: 'Brightening Vitamin C treatment' },
+      { id: 'svc-015-3', name: 'Hair Spa with Massage', category: 'hair' as const, duration: 75, price: 1200, description: 'Nourishing hair spa + scalp massage' },
+    ],
+  },
+  {
+    id: 'salon-016', name: 'Fade & Blade Borivali', slug: 'fade-blade-borivali',
+    area: 'Borivali West', coordinates: { latitude: 19.2307, longitude: 72.8567 },
+    priceRange: 'budget' as const, rating: 4.4, reviewCount: 267,
+    tags: ['grooming', 'fade', 'haircut', 'beard', 'mens'],
+    coverImage: 'https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=800',
+    services: [
+      { id: 'svc-016-1', name: 'Fade Haircut', category: 'grooming' as const, duration: 30, price: 300, description: 'Skin fade to mid fade styling' },
+      { id: 'svc-016-2', name: 'Beard Sculpting', category: 'grooming' as const, duration: 25, price: 250, description: 'Clean beard shape and style' },
+      { id: 'svc-016-3', name: 'Hair + Beard Combo', category: 'grooming' as const, duration: 50, price: 499, description: 'Complete look makeover' },
+    ],
+  },
+  {
+    id: 'salon-017', name: 'Bridal Bliss Kandivali', slug: 'bridal-bliss-kandivali',
+    area: 'Kandivali West', coordinates: { latitude: 19.2044, longitude: 72.8497 },
+    priceRange: 'luxury' as const, rating: 4.7, reviewCount: 134,
+    tags: ['bridal', 'mehendi', 'makeup', 'hair-color', 'draping'],
+    coverImage: 'https://images.unsplash.com/photo-1519741497674-611481863552?w=800',
+    services: [
+      { id: 'svc-017-1', name: 'Full Bridal Package', category: 'bridal' as const, duration: 360, price: 20000, description: 'Head-to-toe bridal transformation' },
+      { id: 'svc-017-2', name: 'Engagement Makeup', category: 'bridal' as const, duration: 90, price: 4500, description: 'Flawless engagement look' },
+      { id: 'svc-017-3', name: 'Bridal Mehendi', category: 'bridal' as const, duration: 150, price: 4000, description: 'Intricate full-hand bridal mehendi' },
+    ],
+  },
+  {
+    id: 'salon-018', name: 'Curl & Colour Lokhandwala', slug: 'curl-colour-lokhandwala',
+    area: 'Lokhandwala', coordinates: { latitude: 19.1349, longitude: 72.8315 },
+    priceRange: 'mid' as const, rating: 4.6, reviewCount: 198,
+    tags: ['curly-hair', 'hair-color', 'balayage', 'ombre', 'highlights'],
+    coverImage: 'https://images.unsplash.com/photo-1562322140-8baeececf3df?w=800',
+    services: [
+      { id: 'svc-018-1', name: 'Ombre Balayage', category: 'hair' as const, duration: 180, price: 4500, description: 'Seamless ombre to balayage blend' },
+      { id: 'svc-018-2', name: 'Curly Colour', category: 'hair' as const, duration: 120, price: 3000, description: 'Specialist color for curly hair' },
+      { id: 'svc-018-3', name: 'Toning + Treatment', category: 'hair' as const, duration: 60, price: 1500, description: 'Colour toning with deep conditioning' },
+    ],
+  },
+  {
+    id: 'salon-019', name: 'Zen Skin Studio Vile Parle', slug: 'zen-skin-vile-parle',
+    area: 'Vile Parle West', coordinates: { latitude: 19.0990, longitude: 72.8467 },
+    priceRange: 'mid' as const, rating: 4.5, reviewCount: 156,
+    tags: ['skin', 'facial', 'acne', 'cleanup', 'derma'],
+    coverImage: 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=800',
+    services: [
+      { id: 'svc-019-1', name: 'Acne Treatment Facial', category: 'skin' as const, duration: 75, price: 1800, description: 'Targeted acne & blemish treatment' },
+      { id: 'svc-019-2', name: 'Microdermabrasion', category: 'skin' as const, duration: 60, price: 2500, description: 'Crystal microdermabrasion for smooth skin' },
+      { id: 'svc-019-3', name: 'De-Pigmentation Pack', category: 'skin' as const, duration: 45, price: 1200, description: 'Targets dark spots and pigmentation' },
+    ],
+  },
+  {
+    id: 'salon-020', name: 'Lush Locks Mulund', slug: 'lush-locks-mulund',
+    area: 'Mulund West', coordinates: { latitude: 19.1726, longitude: 72.9560 },
+    priceRange: 'budget' as const, rating: 4.2, reviewCount: 189,
+    tags: ['hair-color', 'keratin', 'hair-spa', 'rebonding', 'highlights'],
+    coverImage: 'https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?w=800',
+    services: [
+      { id: 'svc-020-1', name: 'Rebonding', category: 'hair' as const, duration: 180, price: 3500, description: 'Permanent hair straightening with rebonding' },
+      { id: 'svc-020-2', name: 'Keratin Smoothing', category: 'hair' as const, duration: 150, price: 4000, description: 'Brazilian keratin treatment' },
+      { id: 'svc-020-3', name: 'Highlights (foil)', category: 'hair' as const, duration: 120, price: 2200, description: 'Natural-looking foil highlights' },
+    ],
+  },
+]
+
 async function seed() {
   console.log('🌱 Starting seed...')
+
+  // Combine original + new salons
+  const ALL_SALONS = [...SALONS, ...MORE_SALONS]
   const batch = db.batch()
 
-  for (const salon of SALONS) {
+  for (const salon of ALL_SALONS) {
     const { services, ...salonData } = salon
     const geohash = encodeGeohash(salonData.coordinates.latitude, salonData.coordinates.longitude)
 
@@ -262,7 +389,7 @@ async function seed() {
 
   // Seed 7 days of slots
   const today = new Date()
-  for (const salon of SALONS) {
+  for (const salon of ALL_SALONS) {
     for (let d = 0; d < 7; d++) {
       const date = new Date(today)
       date.setDate(today.getDate() + d)

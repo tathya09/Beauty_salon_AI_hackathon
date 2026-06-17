@@ -74,6 +74,10 @@ export function ChatWidget() {
       if (data.salonCards?.length > 0) {
         setSalonResults((prev) => ({ ...prev, [newMessages.length - 1]: data.salonCards }))
       }
+      // Show AI badge if powered by Gemini
+      if (data.poweredBy === 'gemini') {
+        console.log('✨ Response powered by Gemini AI')
+      }
     } catch {
       setMessages((prev) => [...prev, { role: 'assistant', content: 'Something went wrong. Please try again!', timestamp: Date.now() }])
     } finally {

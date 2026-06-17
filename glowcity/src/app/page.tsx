@@ -1,30 +1,18 @@
 import { Suspense } from 'react'
+import Link from 'next/link'
 import { Hero } from '@/components/landing/Hero'
 import { FeaturedSalons } from '@/components/landing/FeaturedSalons'
 import { AIFeatures } from '@/components/landing/AIFeatures'
 import { ChatWidget } from '@/components/ai/ChatWidget'
+import { Navbar } from '@/components/landing/Navbar'
 import { Skeleton } from '@/components/ui/skeleton'
-import Link from 'next/link'
 
 export const revalidate = 3600
 
 export default function HomePage() {
   return (
     <main className="min-h-screen">
-      {/* Navbar */}
-      <nav className="fixed top-0 left-0 right-0 z-40 bg-white/80 backdrop-blur-md border-b border-gray-100">
-        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-          <Link href="/" className="text-rose-500 font-extrabold text-xl">✨ GlowCity</Link>
-          <div className="flex items-center gap-3 text-sm">
-            <Link href="/salons" className="text-gray-600 hover:text-rose-500 hidden sm:block">Salons</Link>
-            <Link href="/ai-assistant" className="text-gray-600 hover:text-rose-500 hidden sm:block">Glow AI</Link>
-            <Link href="/style-match" className="text-gray-600 hover:text-rose-500 hidden sm:block">Style Match</Link>
-            <Link href="/login" className="bg-rose-500 hover:bg-rose-600 text-white px-4 py-1.5 rounded-full text-sm font-medium transition-colors">
-              Sign In
-            </Link>
-          </div>
-        </div>
-      </nav>
+      <Navbar />
 
       <div className="pt-14">
         <Hero />
