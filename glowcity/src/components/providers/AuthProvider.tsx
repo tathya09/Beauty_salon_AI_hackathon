@@ -15,6 +15,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setFirebaseUser(firebaseUser)
 
       if (firebaseUser) {
+        // Set session cookie so middleware can protect /dashboard routes
+        try {
+          const idToken = await firebaseUser.getIdToken()
+          await fetch('/api/auth/user', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ idToken, displayName: firebaseUser.displayName }),
+          })
+        } catch { /* non-critical */ }
+
         // Check if user doc exists, create if not (handles cases where backend sync was skipped)
         const userRef = doc(db, 'users', firebaseUser.uid)
         try {

@@ -7,9 +7,13 @@ const nextConfig = {
       { protocol: 'https', hostname: 'storage.googleapis.com' },
       { protocol: 'https', hostname: 'raw.githubusercontent.com' },
       { protocol: 'https', hostname: 'lh3.googleusercontent.com' },
+      { protocol: 'https', hostname: 'cdnjs.cloudflare.com' },
     ],
   },
-  output: 'standalone',
+  // Tell webpack not to bundle firebase-admin — it must run server-side only
+  experimental: {
+    serverComponentsExternalPackages: ['firebase-admin', '@google-cloud/firestore'],
+  },
   async headers() {
     return [
       {
