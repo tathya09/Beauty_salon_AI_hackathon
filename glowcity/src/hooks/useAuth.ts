@@ -1,10 +1,16 @@
 'use client'
 
 import { useAuthStore } from '@/store/authStore'
-import { signInWithGoogle, signInWithPhoneOTP, signOut } from '@/lib/firebase/auth'
+import { signInWithGoogle, signInWithEmail, registerWithEmail, signOut as firebaseSignOut } from '@/lib/firebase/auth'
 
 export function useAuth() {
   const { user, firebaseUser, loading } = useAuthStore()
+
+  async function signOut() {
+    // Clear session cookie then sign out of Firebase
+    await fetch('/api/auth/user', { method: 'DELETE' }).catch(() => {})
+    await firebaseSignOut()
+  }
 
   return {
     user,
@@ -12,7 +18,8 @@ export function useAuth() {
     loading,
     isAuthenticated: !!firebaseUser,
     signInWithGoogle,
-    signInWithPhone: signInWithPhoneOTP,
+    signInWithEmail,
+    registerWithEmail,
     signOut,
   }
 }

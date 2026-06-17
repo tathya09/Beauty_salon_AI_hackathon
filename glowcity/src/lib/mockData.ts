@@ -3,9 +3,10 @@
  * or credentials are missing. Mirrors the shape of the seed data exactly.
  */
 import type { Salon } from '@/types'
-import { Timestamp } from 'firebase/firestore'
 
-const now = Timestamp.now()
+// Plain timestamp object compatible with Firestore Timestamp shape — avoids
+// importing firebase/firestore in server components / API routes
+const now = { seconds: Math.floor(Date.now() / 1000), nanoseconds: 0 } as unknown as Salon['createdAt']
 
 export const MOCK_SALONS: Salon[] = [
   {

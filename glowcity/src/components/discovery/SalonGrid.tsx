@@ -5,7 +5,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { SalonCard } from './SalonCard'
 import { useDiscoveryStore } from '@/store/discoveryStore'
 import { setVisibleSalons } from './SalonMapWrapper'
-import { haversineKm, formatDistance } from '@/utils/geo'
+import { haversineKm, formatDistance, getAreaCoords } from '@/utils/geo'
 import type { Salon } from '@/types'
 
 interface SalonGridProps {
@@ -56,24 +56,29 @@ export function SalonGrid({ initialSalons }: SalonGridProps) {
         body: JSON.stringify({
           query,
           filters,
-          // Pass user location so API can sort by real distance across all cities
           userLocation: userLocation ?? undefined,
         }),
       })
       if (res.ok) {
         const data = await res.json()
         setSalons(data.items ?? [])
+
+        // Auto-enable nearest-first when area coords or GPS available
+        const hasAreaCoords = (query && getAreaCoords(query)) ||
+          (filters.area && getAreaCoords(filters.area))
+        if (userLocation || hasAreaCoords) {
+          setSortByDistance(true)
+        }
       }
     } catch {
       // keep current results on network error
     } finally {
       setLoading(false)
     }
-  }, [query, filters, userLocation])
+  }, [query, filters, userLocation, setSortByDistance])
 
   useEffect(() => {
-    // Always search when location is active (to get distance-sorted results)
-    // or when any filter/query is set
+    // Trigger search when: GPS location active, area filter set, or any other filter/query
     const hasFilter =
       query ||
       filters.area ||
@@ -89,12 +94,18 @@ export function SalonGrid({ initialSalons }: SalonGridProps) {
     }
   }, [query, filters, userLocation, initialSalons, search])
 
-  // ── Sort by distance when user location available ────────────
+  // ── Reference point for distance display ──────────────────────
+  // Use GPS location if available, otherwise geocode area from query/filters
+  const refPoint = userLocation ??
+    (query ? getAreaCoords(query) : null) ??
+    (filters.area ? getAreaCoords(filters.area) : null)
+
+  // ── Sort by distance when a reference point is available ─────
   const displaySalons = (() => {
-    if (!sortByDistance || !userLocation) return salons
+    if (!sortByDistance || !refPoint) return salons
     return [...salons].sort((a, b) => {
-      const da = haversineKm(userLocation.latitude, userLocation.longitude, a.coordinates.latitude, a.coordinates.longitude)
-      const db = haversineKm(userLocation.latitude, userLocation.longitude, b.coordinates.latitude, b.coordinates.longitude)
+      const da = haversineKm(refPoint.latitude, refPoint.longitude, a.coordinates.latitude, a.coordinates.longitude)
+      const db = haversineKm(refPoint.latitude, refPoint.longitude, b.coordinates.latitude, b.coordinates.longitude)
       return da - db
     })
   })()
@@ -160,7 +171,8 @@ export function SalonGrid({ initialSalons }: SalonGridProps) {
             </div>
           )}
 
-          {userLocation && (
+          {/* Show nearest-first toggle when GPS or area reference point available */}
+          {refPoint && (
             <button
               onClick={() => setSortByDistance(!sortByDistance)}
               className={`text-xs px-3 py-1.5 rounded-full border font-medium transition-colors ${
@@ -203,10 +215,10 @@ export function SalonGrid({ initialSalons }: SalonGridProps) {
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {displaySalons.map((salon, idx) => {
-            const dist = userLocation
-              ? haversineKm(userLocation.latitude, userLocation.longitude, salon.coordinates.latitude, salon.coordinates.longitude)
+            const dist = refPoint
+              ? haversineKm(refPoint.latitude, refPoint.longitude, salon.coordinates.latitude, salon.coordinates.longitude)
               : null
-            const isNearest = sortByDistance && idx === 0
+            const isNearest = (sortByDistance || !!refPoint) && idx === 0
 
             return (
               <div key={salon.id} className="relative">
