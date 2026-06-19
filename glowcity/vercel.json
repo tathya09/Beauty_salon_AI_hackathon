@@ -1,15 +1,9 @@
 {
   "framework": "nextjs",
   "regions": ["bom1"],
-  "installCommand": "npm install",
-  "buildCommand": "npm run build",
-  "outputDirectory": ".next",
   "functions": {
-    "src/app/api/ai/**": {
-      "maxDuration": 30
-    },
-    "src/app/api/payments/**": {
-      "maxDuration": 15
-    }
+    "src/app/api/ai/**": { "maxDuration": 30 },
+    "src/app/api/payments/**": { "maxDuration": 15 },
+    "src/app/api/bookings/**": { "maxDuration": 15 }
   }
 }

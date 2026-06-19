@@ -7,8 +7,9 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { getSalonById } from '@/lib/repositories/salonRepository'
 import { formatINR } from '@/utils/format'
+import { SalonReviews } from '@/components/salon/SalonReviews'
 
-export const revalidate = 3600
+export const revalidate = 60
 
 interface Props { params: { salonId: string } }
 
@@ -48,18 +49,20 @@ export default async function SalonDetailPage({ params }: Props) {
               <span>{salon.area}, Mumbai</span>
               <span className="opacity-60">·</span>
               <Star className="w-4 h-4 fill-amber-400 stroke-amber-400" />
-              <span>{salon.rating.toFixed(1)} ({salon.reviewCount} reviews)</span>
+              <span>{salon.rating > 0 ? salon.rating.toFixed(1) : 'New'} {salon.reviewCount > 0 ? `(${salon.reviewCount} reviews)` : ''}</span>
             </div>
           </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left: services + hours */}
+          {/* Left: services + hours + reviews */}
           <div className="lg:col-span-2 space-y-6">
             {/* Tags */}
             <div className="flex flex-wrap gap-2">
               {salon.tags.map((tag) => (
-                <Badge key={tag} variant="outline" className="text-rose-600 border-rose-200">{tag}</Badge>
+                <Badge key={tag} variant="outline" className="text-rose-600 border-rose-200 capitalize">
+                  {tag.replace(/-/g, ' ')}
+                </Badge>
               ))}
             </div>
 
@@ -67,7 +70,9 @@ export default async function SalonDetailPage({ params }: Props) {
             <div>
               <h2 className="text-lg font-semibold mb-3">Services</h2>
               <div className="space-y-2">
-                {salon.services.map((svc) => (
+                {salon.services.length === 0 ? (
+                  <p className="text-gray-400 text-sm py-4">No services listed yet</p>
+                ) : salon.services.map((svc) => (
                   <Card key={svc.id}>
                     <CardContent className="p-4 flex items-center justify-between">
                       <div>
@@ -75,7 +80,7 @@ export default async function SalonDetailPage({ params }: Props) {
                         <div className="flex items-center gap-2 text-xs text-gray-500 mt-0.5">
                           <Clock className="w-3 h-3" />
                           <span>{svc.duration} min</span>
-                          <Badge variant="outline" className="text-xs">{svc.category}</Badge>
+                          <Badge variant="outline" className="text-xs capitalize">{svc.category}</Badge>
                         </div>
                         {svc.description && <p className="text-xs text-gray-400 mt-1">{svc.description}</p>}
                       </div>
@@ -86,27 +91,32 @@ export default async function SalonDetailPage({ params }: Props) {
               </div>
             </div>
 
-            {/* Hours */}
-            <div>
-              <h2 className="text-lg font-semibold mb-3">Opening Hours</h2>
-              <Card>
-                <CardContent className="p-4">
-                  <div className="space-y-1">
-                    {days.map((day) => {
-                      const h = salon.openingHours?.[day]
-                      return (
-                        <div key={day} className="flex justify-between text-sm">
-                          <span className="capitalize text-gray-600 w-28">{day}</span>
-                          <span className={h?.closed ? 'text-red-400' : 'text-gray-800'}>
-                            {h?.closed ? 'Closed' : `${h?.open ?? ''} – ${h?.close ?? ''}`}
-                          </span>
-                        </div>
-                      )
-                    })}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+            {/* Opening Hours */}
+            {salon.openingHours && Object.keys(salon.openingHours).length > 0 && (
+              <div>
+                <h2 className="text-lg font-semibold mb-3">Opening Hours</h2>
+                <Card>
+                  <CardContent className="p-4">
+                    <div className="space-y-1">
+                      {days.map((day) => {
+                        const h = salon.openingHours?.[day]
+                        return (
+                          <div key={day} className="flex justify-between text-sm">
+                            <span className="capitalize text-gray-600 w-28">{day}</span>
+                            <span className={h?.closed ? 'text-red-400' : 'text-gray-800'}>
+                              {h?.closed ? 'Closed' : h ? `${h.open} – ${h.close}` : '9:00 – 20:00'}
+                            </span>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
+            {/* Reviews Section — client component */}
+            <SalonReviews salonId={params.salonId} />
           </div>
 
           {/* Right: Book CTA */}
@@ -116,9 +126,9 @@ export default async function SalonDetailPage({ params }: Props) {
                 <div>
                   <p className="text-sm text-gray-500">Starting from</p>
                   <p className="text-2xl font-bold text-gray-900">
-                    {salon.services.length
+                    {salon.services.length > 0
                       ? formatINR(Math.min(...salon.services.map((s) => s.price)))
-                      : '—'}
+                      : 'Free consultation'}
                   </p>
                 </div>
                 <Link href={`/salons/${salon.id}/book`} className="block">
@@ -126,7 +136,7 @@ export default async function SalonDetailPage({ params }: Props) {
                     Book Appointment
                   </Button>
                 </Link>
-                <p className="text-xs text-gray-400 text-center">Free cancellation up to 2 hours before</p>
+                <p className="text-xs text-gray-400 text-center">Free cancellation · Pay at salon</p>
               </CardContent>
             </Card>
           </div>

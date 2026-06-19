@@ -66,7 +66,7 @@ export default function RegisterPage() {
       }
 
       toast.success(`Welcome to GlowCity, ${data.name}!`)
-      router.push(role === 'salon_owner' ? '/dashboard/overview' : '/')
+      router.push(role === 'salon_owner' ? '/onboarding' : '/')
     } catch (error: unknown) {
       console.error('Registration error:', error)
       toast.error(getErrorMessage(error, 'Registration failed. Please try again.'))
@@ -89,10 +89,10 @@ export default function RegisterPage() {
 
       if (!data.isNewUser) {
         toast.success(`Welcome back, ${user.displayName || 'there'}!`)
-        router.push('/')
+        router.push(role === 'salon_owner' ? '/dashboard/overview' : '/')
       } else {
         toast.success(`Welcome to GlowCity, ${user.displayName || 'there'}!`)
-        router.push(role === 'salon_owner' ? '/dashboard/overview' : '/')
+        router.push(role === 'salon_owner' ? '/onboarding' : '/')
       }
     } catch (error: unknown) {
       toast.error(getErrorMessage(error, 'Google sign-up failed.'))

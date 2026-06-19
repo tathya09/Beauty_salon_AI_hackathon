@@ -148,6 +148,7 @@ export default function BookPage({ params }: Props) {
             {step === 'datetime' && (
               <BookingCalendar
                 salonId={salon.id}
+                serviceDuration={selectedServices.length > 0 ? selectedServices[0].duration : 60}
                 onSelectSlot={(slot) => { setSelectedSlot(slot); setStep('confirm') }}
               />
             )}
