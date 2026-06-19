@@ -1,7 +1,7 @@
 import { Timestamp } from 'firebase/firestore'
 
 // ── Supporting Types ──────────────────────────────────────────────
-export type ServiceCategory = 'hair' | 'skin' | 'nails' | 'bridal' | 'grooming' | 'spa'
+export type ServiceCategory = 'hair' | 'skin' | 'nails' | 'bridal' | 'grooming' | 'spa' | 'mens' | 'kids'
 export type PriceRange = 'budget' | 'mid' | 'luxury'
 export type BookingStatus = 'pending' | 'confirmed' | 'completed' | 'cancelled'
 export type PaymentStatus = 'unpaid' | 'paid' | 'refunded'

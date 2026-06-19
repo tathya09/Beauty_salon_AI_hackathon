@@ -1,7 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
 import { useEffect, useState } from 'react'
-import { collection, query, where, orderBy, limit, getDocs } from 'firebase/firestore'
+import {
+  collection, query, where, orderBy, limit,
+  getDocs, doc, getDoc, documentId,
+} from 'firebase/firestore'
 import { db } from '@/lib/firebase/client'
 import { useAuth } from '@/hooks/useAuth'
 import { Card, CardContent } from '@/components/ui/card'
@@ -16,7 +20,7 @@ import type { Booking } from '@/types'
 
 const STATUS_STYLES: Record<string, string> = {
   confirmed: 'bg-green-100 text-green-700 border-green-200',
-  pending: 'bg-yellow-100 text-yellow-700 border-yellow-200',
+  pending:   'bg-yellow-100 text-yellow-700 border-yellow-200',
   completed: 'bg-blue-100 text-blue-700 border-blue-200',
   cancelled: 'bg-red-100 text-red-700 border-red-200',
 }
@@ -63,6 +67,79 @@ function BookingCard({ booking }: { booking: Booking }) {
   )
 }
 
+async function fetchBookingsForUser(uid: string): Promise<Booking[]> {
+  // Strategy 1: direct Firestore query with index
+  try {
+    const q = query(
+      collection(db, 'bookings'),
+      where('userId', '==', uid),
+      orderBy('createdAt', 'desc'),
+      limit(50)
+    )
+    const snap = await getDocs(q)
+    if (!snap.empty) {
+      return snap.docs.map((d) => ({ ...d.data(), id: d.id } as Booking))
+    }
+  } catch (err: any) {
+    // Index may not exist yet — fall through to Strategy 2
+    console.warn('Bookings query (with orderBy) failed, trying fallback:', err?.code)
+  }
+
+  // Strategy 2: query without orderBy (works without composite index)
+  try {
+    const q2 = query(
+      collection(db, 'bookings'),
+      where('userId', '==', uid),
+      limit(50)
+    )
+    const snap2 = await getDocs(q2)
+    if (!snap2.empty) {
+      const items = snap2.docs.map((d) => ({ ...d.data(), id: d.id } as Booking))
+      // Sort client-side by createdAt
+      return items.sort((a, b) => {
+        const ta = (a.createdAt as any)?.seconds ?? 0
+        const tb = (b.createdAt as any)?.seconds ?? 0
+        return tb - ta
+      })
+    }
+  } catch (err: any) {
+    console.warn('Bookings query (no orderBy) failed, trying user doc fallback:', err?.code)
+  }
+
+  // Strategy 3: read booking IDs from user's bookingHistory array
+  try {
+    const userSnap = await getDoc(doc(db, 'users', uid))
+    if (userSnap.exists()) {
+      const bookingIds: string[] = userSnap.data().bookingHistory ?? []
+      if (bookingIds.length === 0) return []
+
+      // Fetch in chunks of 10 (Firestore `in` limit)
+      const chunks: string[][] = []
+      for (let i = 0; i < bookingIds.length; i += 10) {
+        chunks.push(bookingIds.slice(i, i + 10))
+      }
+
+      const allBookings: Booking[] = []
+      for (const chunk of chunks) {
+        const chunkSnap = await getDocs(
+          query(collection(db, 'bookings'), where(documentId(), 'in', chunk))
+        )
+        chunkSnap.docs.forEach((d) => allBookings.push({ ...d.data(), id: d.id } as Booking))
+      }
+
+      return allBookings.sort((a, b) => {
+        const ta = (a.createdAt as any)?.seconds ?? 0
+        const tb = (b.createdAt as any)?.seconds ?? 0
+        return tb - ta
+      })
+    }
+  } catch (err: any) {
+    console.warn('Bookings user-doc fallback failed:', err?.code)
+  }
+
+  return []
+}
+
 export default function BookingsPage() {
   const { firebaseUser, loading: authLoading } = useAuth()
   const [bookings, setBookings] = useState<Booking[]>([])
@@ -73,30 +150,15 @@ export default function BookingsPage() {
     if (authLoading) return
     if (!firebaseUser) { setLoading(false); return }
 
-    async function load() {
-      try {
-        const q = query(
-          collection(db, 'bookings'),
-          where('userId', '==', firebaseUser!.uid),
-          orderBy('createdAt', 'desc'),
-          limit(50)
-        )
-        const snap = await getDocs(q)
-        setBookings(snap.docs.map((d) => ({ ...d.data(), id: d.id } as Booking)))
-      } catch (err) {
-        console.error('Bookings fetch error:', err)
-        setBookings([])
-      } finally {
-        setLoading(false)
-      }
-    }
-    load()
+    fetchBookingsForUser(firebaseUser.uid)
+      .then(setBookings)
+      .catch((err) => { console.error('Bookings load error:', err); setBookings([]) })
+      .finally(() => setLoading(false))
   }, [firebaseUser, authLoading])
 
   const filterBookings = (t: string) => {
-    if (t === 'all') return bookings
-    if (t === 'upcoming') return bookings.filter((b) => ['confirmed', 'pending'].includes(b.status))
-    if (t === 'past') return bookings.filter((b) => b.status === 'completed')
+    if (t === 'upcoming')  return bookings.filter((b) => ['confirmed', 'pending'].includes(b.status))
+    if (t === 'past')      return bookings.filter((b) => b.status === 'completed')
     if (t === 'cancelled') return bookings.filter((b) => b.status === 'cancelled')
     return bookings
   }

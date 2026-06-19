@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
 import { useState, useEffect } from 'react'
@@ -35,25 +36,26 @@ export default function BookPage({ params }: Props) {
     if (!isAuthenticated) router.push('/login')
   }, [isAuthenticated, router])
 
-  // Confirm booking — saves to Firestore, no payment
+  // Confirm booking — saves to Firestore
   async function handleConfirmBooking() {
     if (!salon || !selectedSlot) return
     setConfirming(true)
     try {
-      // Try to get auth token — works even without it
-      let authHeader: Record<string, string> = {}
-      try {
-        const { getAuth } = await import('firebase/auth')
-        const currentUser = getAuth().currentUser
-        if (currentUser) {
-          const token = await currentUser.getIdToken()
-          authHeader = { Authorization: `Bearer ${token}` }
-        }
-      } catch { /* no auth */ }
+      // Get auth token — required for booking
+      const { getAuth } = await import('firebase/auth')
+      const currentUser = getAuth().currentUser
+      if (!currentUser) {
+        router.push('/login')
+        return
+      }
+      const token = await currentUser.getIdToken(/* forceRefresh */ true)
 
       const res = await fetch('/api/bookings/confirm', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...authHeader },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
         body: JSON.stringify({
           salonId: salon.id,
           salonName: salon.name,
@@ -65,12 +67,16 @@ export default function BookPage({ params }: Props) {
       })
 
       const data = await res.json()
+      if (!res.ok) {
+        throw new Error(data.error ?? 'Booking failed. Please try again.')
+      }
+
       setBookingId(data.bookingId)
       setStep('success')
-    } catch {
-      // Even on error, show success with a generated ID for demo
-      setBookingId(`GC-${Date.now().toString(36).toUpperCase()}`)
-      setStep('success')
+    } catch (err: any) {
+      console.error('Booking error:', err)
+      // Show error — don't silently swallow it
+      alert(err.message ?? 'Booking failed. Please try again.')
     } finally {
       setConfirming(false)
     }

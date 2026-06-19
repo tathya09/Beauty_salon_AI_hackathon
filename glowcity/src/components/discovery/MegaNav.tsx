@@ -3,8 +3,9 @@
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { ChevronDown, Mic, MicOff, Sparkles, Camera, Brain, Leaf } from 'lucide-react'
+import { ChevronDown, Mic, MicOff, Sparkles, Camera, Brain, Leaf, LogIn, UserPlus, User, LogOut, CalendarDays } from 'lucide-react'
 import { useDiscoveryStore } from '@/store/discoveryStore'
+import { useAuth } from '@/hooks/useAuth'
 import type { ServiceCategory } from '@/types'
 
 type SpeechRecognizerInstance = {
@@ -116,6 +117,42 @@ const SERVICES_MENU = [
       { label: 'Clean Shave', tag: 'shave' },
       { label: 'Scalp Treatment', tag: 'scalp' },
       { label: 'Detan Facial', tag: 'detan' },
+      { label: 'Head Massage', tag: 'head-massage' },
+      { label: 'Hair Color (Men)', tag: 'hair-color' },
+    ],
+  },
+  {
+    category: 'mens' as ServiceCategory,
+    label: '👨 Men\'s',
+    color: 'from-sky-50 to-indigo-50',
+    accent: 'text-sky-700',
+    subTypes: [
+      { label: 'Haircut & Style', tag: 'haircut' },
+      { label: 'Beard Trim & Shape', tag: 'beard' },
+      { label: 'Clean Shave', tag: 'shave' },
+      { label: 'Hair Color & Highlights', tag: 'hair-color' },
+      { label: 'Keratin Treatment', tag: 'keratin' },
+      { label: 'Scalp Spa', tag: 'scalp' },
+      { label: 'Detan Facial', tag: 'detan' },
+      { label: 'Manicure & Pedicure', tag: 'manicure' },
+      { label: 'Eyebrow Shaping', tag: 'threading' },
+      { label: 'Hair Spa', tag: 'hair-spa' },
+    ],
+  },
+  {
+    category: 'kids' as ServiceCategory,
+    label: '🧒 Kids',
+    color: 'from-yellow-50 to-lime-50',
+    accent: 'text-yellow-700',
+    subTypes: [
+      { label: "Kids' Haircut (Girl)", tag: 'kids-haircut' },
+      { label: "Kids' Haircut (Boy)", tag: 'kids-haircut' },
+      { label: 'Kids Hair Spa', tag: 'kids-hair-spa' },
+      { label: 'Hair Color (Kids)', tag: 'kids-hair-color' },
+      { label: 'Fun Nail Art', tag: 'nail-art' },
+      { label: 'Kids Facial Cleanup', tag: 'cleanup' },
+      { label: 'Flower Girl Styling', tag: 'bridal' },
+      { label: 'Party Makeup (Teens)', tag: 'makeup' },
     ],
   },
 ]
@@ -130,23 +167,40 @@ const AI_MENU = [
 export function MegaNav() {
   const router = useRouter()
   const { setFilters, setQuery } = useDiscoveryStore()
+  const { firebaseUser, user, signOut } = useAuth()
   const [activeMenu, setActiveMenu] = useState<string | null>(null)
   const [listening, setListening] = useState(false)
+  const [userMenuOpen, setUserMenuOpen] = useState(false)
+  const userMenuRef = useRef<HTMLDivElement>(null)
   const [voiceText, setVoiceText] = useState('')
   const navRef = useRef<HTMLDivElement>(null)
   const recognitionRef = useRef<SpeechRecognizerInstance | null>(null)
 
-  // Close on outside click
+  // Close nav menus on outside click
   useEffect(() => {
     if (typeof document === 'undefined') return
     function handler(e: MouseEvent) {
       if (navRef.current && !navRef.current.contains(e.target as Node)) {
         setActiveMenu(null)
       }
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+        setUserMenuOpen(false)
+      }
     }
     document.addEventListener('mousedown', handler)
     return () => document.removeEventListener('mousedown', handler)
   }, [])
+
+  async function handleSignOut() {
+    setUserMenuOpen(false)
+    await signOut()
+    router.push('/')
+    router.refresh()
+  }
+
+  const displayName = user?.displayName || firebaseUser?.displayName || firebaseUser?.email?.split('@')[0] || 'User'
+  const initials = displayName.split(' ').map((w: string) => w[0]).join('').toUpperCase().slice(0, 2)
+  const photoURL = user?.photoURL || firebaseUser?.photoURL
 
   // ── Voice navigation ──────────────────────────────────────────
   function toggleVoice() {
@@ -232,6 +286,7 @@ export function MegaNav() {
     const catMap: Record<string, ServiceCategory> = {
       hair: 'hair', nails: 'nails', nail: 'nails', skin: 'skin',
       bridal: 'bridal', spa: 'spa', grooming: 'grooming',
+      mens: 'mens', men: 'mens', kids: 'kids', children: 'kids', child: 'kids',
     }
     for (const [word, cat] of Object.entries(catMap)) {
       if (text.includes(word)) {
@@ -384,12 +439,61 @@ export function MegaNav() {
             <Link href="/salons" className="hidden sm:block text-sm text-gray-600 hover:text-rose-500 px-2">
               Salons
             </Link>
-            <Link
-              href="/dashboard/bookings"
-              className="text-sm bg-rose-500 hover:bg-rose-600 text-white px-3 py-1.5 rounded-lg font-medium transition-colors"
-            >
-              My Bookings
-            </Link>
+
+            {/* Auth section */}
+            {firebaseUser ? (
+              <div className="relative" ref={userMenuRef}>
+                <button
+                  onClick={() => setUserMenuOpen(!userMenuOpen)}
+                  className="flex items-center gap-1.5 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-full px-3 py-1.5 transition-colors"
+                >
+                  {photoURL ? (
+                    <img src={photoURL} alt={displayName} className="w-5 h-5 rounded-full object-cover" />
+                  ) : (
+                    <div className="w-5 h-5 rounded-full bg-rose-500 text-white text-xs flex items-center justify-center font-semibold">
+                      {initials}
+                    </div>
+                  )}
+                  <span className="text-rose-600 font-medium text-xs hidden sm:block max-w-[80px] truncate">
+                    {displayName.split(' ')[0]}
+                  </span>
+                  <ChevronDown className={`w-3 h-3 text-rose-400 transition-transform ${userMenuOpen ? 'rotate-180' : ''}`} />
+                </button>
+                {userMenuOpen && (
+                  <div className="absolute right-0 top-full mt-2 w-52 bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden z-50">
+                    <div className="px-4 py-3 border-b bg-rose-50">
+                      <p className="font-semibold text-gray-900 text-sm truncate">{displayName}</p>
+                      <p className="text-xs text-gray-500 truncate">{firebaseUser.email}</p>
+                    </div>
+                    <Link href="/dashboard/bookings" onClick={() => setUserMenuOpen(false)}
+                      className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50">
+                      <CalendarDays className="w-4 h-4 text-rose-400" /> My Bookings
+                    </Link>
+                    <Link href="/dashboard/profile" onClick={() => setUserMenuOpen(false)}
+                      className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50">
+                      <User className="w-4 h-4 text-rose-400" /> Profile
+                    </Link>
+                    <button onClick={handleSignOut}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 border-t">
+                      <LogOut className="w-4 h-4" /> Sign Out
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <>
+                <Link href="/login"
+                  className="hidden sm:flex items-center gap-1.5 text-sm text-gray-600 hover:text-rose-500 px-2 py-1.5 transition-colors">
+                  <LogIn className="w-3.5 h-3.5" /> Sign In
+                </Link>
+                <Link href="/register"
+                  className="flex items-center gap-1.5 text-sm bg-rose-500 hover:bg-rose-600 text-white px-3 py-1.5 rounded-lg font-medium transition-colors">
+                  <UserPlus className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Sign Up</span>
+                  <span className="sm:hidden">Join</span>
+                </Link>
+              </>
+            )}
           </div>
         </div>
 

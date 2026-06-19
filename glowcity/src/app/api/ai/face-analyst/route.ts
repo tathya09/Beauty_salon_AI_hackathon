@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { GoogleGenerativeAI } from '@google/generative-ai'
+import { randomMockResult } from '@/lib/skinMockPool'
 
 const genai = new GoogleGenerativeAI(process.env.GEMINI_API_KEY ?? '')
 
@@ -41,19 +42,24 @@ Analyse the provided face/skin photo and return a JSON object ONLY (no markdown,
   ]
 }
 
-Be specific, helpful, and accurate. Base analysis on visible skin characteristics only. If the image quality is poor, lower confidence and mention that in the analysisSummary.`
+Be specific, helpful, and accurate. Base analysis on visible skin characteristics only.
+Each "services" array must contain EXACTLY 4 uniquely named services — never repeat the same service name.
+If image quality is poor, lower confidence and mention it in analysisSummary.`
 
 export async function POST(req: NextRequest) {
+  let preferredType: string | undefined
   try {
-    const { imageBase64, preferredType } = await req.json()
+    const body = await req.json()
+    const imageBase64: string | undefined = body.imageBase64
+    preferredType = body.preferredType
 
     if (!imageBase64) {
       return NextResponse.json({ error: 'No image provided' }, { status: 400 })
     }
 
+    // No API key → random mock (different every call)
     if (!process.env.GEMINI_API_KEY) {
-      // Return mock result if no API key
-      return NextResponse.json(getMockResult())
+      return NextResponse.json(randomMockResult(preferredType))
     }
 
     const model = genai.getGenerativeModel({ model: 'gemini-1.5-flash' })
@@ -64,62 +70,19 @@ export async function POST(req: NextRequest) {
 
     const result = await model.generateContent([
       prompt,
-      {
-        inlineData: {
-          mimeType: 'image/jpeg',
-          data: imageBase64,
-        },
-      },
+      { inlineData: { mimeType: 'image/jpeg', data: imageBase64 } },
     ])
 
     const text = result.response.text().trim()
-
-    // Extract JSON from response
     const jsonMatch = text.match(/\{[\s\S]*\}/)
-    if (!jsonMatch) throw new Error('Invalid response format')
+    if (!jsonMatch) throw new Error('Invalid response format from Gemini')
 
     const analysis = JSON.parse(jsonMatch[0])
     return NextResponse.json(analysis)
+
   } catch (err) {
     console.error('Face analyst error:', err)
-    // Return graceful mock on error
-    return NextResponse.json(getMockResult())
-  }
-}
-
-function getMockResult() {
-  return {
-    skinType: 'Combination',
-    concerns: ['Mild dehydration', 'Uneven skin tone', 'T-zone oiliness'],
-    overallScore: 7,
-    confidence: 0.72,
-    analysisSummary: 'This estimate is based on a typical combination-skin pattern and visible dryness around the cheeks with mild oiliness in the T-zone.',
-    glowTip: 'Use a gentle hydrating serum daily and apply SPF 30+ every morning for a natural glow.',
-    recommendations: [
-      {
-        type: 'natural',
-        label: 'Natural Treatments',
-        reason: 'Your combination skin will benefit from gentle plant-based ingredients that balance oil without stripping moisture.',
-        services: ['Rose Water Facial', 'Aloe Vera Cleanup', 'Herbal Hair Mask', 'Cucumber Eye Treatment'],
-      },
-      {
-        type: 'ayurvedic',
-        label: 'Ayurvedic Treatments',
-        reason: 'Ayurvedic herbs like turmeric and sandalwood can help balance your Pitta-Vata combination skin.',
-        services: ['Kumkumadi Facial', 'Neem & Turmeric Cleanup', 'Brahmi Hair Spa', 'Ubtan Body Polish'],
-      },
-      {
-        type: 'chemical',
-        label: 'Advanced Chemical Treatments',
-        reason: 'Mild AHA/BHA treatments can address uneven tone and T-zone oiliness effectively.',
-        services: ['AHA Glow Facial', 'Salicylic Acid Cleanup', 'Vitamin C Brightening Treatment', 'Keratin Smoothing'],
-      },
-      {
-        type: 'dermat',
-        label: 'Dermatologist-Recommended',
-        reason: 'Clinical treatments can provide long-lasting results for your combination skin concerns.',
-        services: ['HydraFacial MD', 'Medical-Grade Chemical Peel', 'LED Light Therapy', 'Microdermabrasion'],
-      },
-    ],
+    // Always return a fresh random result on error — never the same one twice
+    return NextResponse.json(randomMockResult(preferredType))
   }
 }

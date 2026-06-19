@@ -15,12 +15,14 @@ const PRICE_RANGES: { label: string; value: PriceRange }[] = [
 
 // ── Top-level categories ──────────────────────────────────────
 const CATEGORIES: { label: string; value: ServiceCategory; icon: string }[] = [
-  { label: 'Hair', value: 'hair', icon: '💇' },
-  { label: 'Nails', value: 'nails', icon: '💅' },
-  { label: 'Skin', value: 'skin', icon: '🧴' },
-  { label: 'Bridal', value: 'bridal', icon: '👰' },
+  { label: 'Hair',     value: 'hair',     icon: '💇' },
+  { label: 'Nails',    value: 'nails',    icon: '💅' },
+  { label: 'Skin',     value: 'skin',     icon: '🧴' },
+  { label: 'Bridal',   value: 'bridal',   icon: '👰' },
   { label: 'Grooming', value: 'grooming', icon: '🪒' },
-  { label: 'Spa', value: 'spa', icon: '🛁' },
+  { label: 'Spa',      value: 'spa',      icon: '🛁' },
+  { label: "Men's",    value: 'mens',     icon: '👨' },
+  { label: 'Kids',     value: 'kids',     icon: '🧒' },
 ]
 
 // ── Sub-type definitions per category ────────────────────────
@@ -75,12 +77,33 @@ const SUB_TYPES: Record<ServiceCategory, SubType[]> = {
     { label: 'Detan Facial', tag: 'detan', desc: 'Men\'s facial' },
   ],
   spa: [
-    { label: 'Swedish Massage', tag: 'massage', desc: 'Relaxing full body' },
-    { label: 'Deep Tissue', tag: 'deep-tissue', desc: 'Muscle relief' },
-    { label: 'Aromatherapy', tag: 'aromatherapy', desc: 'Essential oils' },
-    { label: 'Hot Stone', tag: 'hot-stone', desc: 'Stone therapy' },
-    { label: 'Body Wrap', tag: 'body-wrap', desc: 'Detox wrap' },
-    { label: 'Reflexology', tag: 'reflexology', desc: 'Foot pressure' },
+    { label: 'Swedish Massage', tag: 'massage',      desc: 'Relaxing full body' },
+    { label: 'Deep Tissue',     tag: 'deep-tissue',  desc: 'Muscle relief' },
+    { label: 'Aromatherapy',    tag: 'aromatherapy', desc: 'Essential oils' },
+    { label: 'Hot Stone',       tag: 'hot-stone',    desc: 'Stone therapy' },
+    { label: 'Body Wrap',       tag: 'body-wrap',    desc: 'Detox wrap' },
+    { label: 'Reflexology',     tag: 'reflexology',  desc: 'Foot pressure' },
+  ],
+  mens: [
+    { label: 'Haircut & Style',      tag: 'haircut',    desc: 'Cut & style' },
+    { label: 'Beard Trim & Shape',   tag: 'beard',      desc: 'Precision beard' },
+    { label: 'Clean Shave',          tag: 'shave',      desc: 'Hot towel shave' },
+    { label: 'Hair Color',           tag: 'hair-color', desc: 'Color & highlights' },
+    { label: 'Keratin Treatment',    tag: 'keratin',    desc: 'Smoothing' },
+    { label: 'Scalp Spa',            tag: 'scalp',      desc: 'Scalp therapy' },
+    { label: 'Detan Facial',         tag: 'detan',      desc: "Men's facial" },
+    { label: 'Manicure & Pedicure',  tag: 'manicure',   desc: 'Hand & foot care' },
+    { label: 'Eyebrow Shaping',      tag: 'threading',  desc: 'Brow grooming' },
+    { label: 'Hair Spa',             tag: 'hair-spa',   desc: 'Deep conditioning' },
+  ],
+  kids: [
+    { label: "Kids' Haircut (Girl)", tag: 'kids-haircut',    desc: 'Girls cut & style' },
+    { label: "Kids' Haircut (Boy)",  tag: 'kids-haircut',    desc: 'Boys cut & style' },
+    { label: 'Kids Hair Spa',        tag: 'kids-hair-spa',   desc: 'Gentle conditioning' },
+    { label: 'Fun Nail Art',         tag: 'nail-art',        desc: 'Colourful nail art' },
+    { label: 'Kids Facial Cleanup',  tag: 'cleanup',         desc: 'Gentle cleanup' },
+    { label: 'Flower Girl Styling',  tag: 'bridal',          desc: 'Wedding styling' },
+    { label: 'Party Makeup (Teens)', tag: 'makeup',          desc: 'Light glam' },
   ],
 }
 

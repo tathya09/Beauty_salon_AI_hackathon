@@ -4,7 +4,7 @@ import { Hero } from '@/components/landing/Hero'
 import { FeaturedSalons } from '@/components/landing/FeaturedSalons'
 import { AIFeatures } from '@/components/landing/AIFeatures'
 import { ChatWidget } from '@/components/ai/ChatWidget'
-import { Navbar } from '@/components/landing/Navbar'
+import { MegaNav } from '@/components/discovery/MegaNav'
 import { Skeleton } from '@/components/ui/skeleton'
 
 export const revalidate = 3600
@@ -12,7 +12,7 @@ export const revalidate = 3600
 export default function HomePage() {
   return (
     <main className="min-h-screen">
-      <Navbar />
+      <MegaNav />
 
       <div className="pt-14">
         <Hero />
