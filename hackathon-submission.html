@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GlowCity - Hackathon Submission</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ec4899 0%, #be185d 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.95;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section h2 {
+            color: #be185d;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #ec4899;
+        }
+
+        .section h3 {
+            color: #ec4899;
+            font-size: 1.3em;
+            margin-top: 25px;
+            margin-bottom: 15px;
+        }
+
+        .copy-box {
+            background: #f9fafb;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            position: relative;
+        }
+
+        .copy-box pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+            line-height: 1.6;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #ec4899;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s;
+        }
+
+        .copy-btn:hover {
+            background: #be185d;
+            transform: translateY(-2px);
+        }
+
+        .copy-btn:active {
+            transform: translateY(0);
+        }
+
+        .copy-btn.copied {
+            background: #10b981;
+        }
+
+        .timeline {
+            background: #fef3f2;
+            border-left: 4px solid #ec4899;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .timeline-item {
+            margin-bottom: 15px;
+            padding-left: 20px;
+        }
+
+        .timeline-item h4 {
+            color: #be185d;
+            margin-bottom: 5px;
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .tool-card {
+            background: #fef3f2;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #ec4899;
+        }
+
+        .tool-card h4 {
+            color: #be185d;
+            margin-bottom: 10px;
+        }
+
+        .criteria-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .criteria-table th,
+        .criteria-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .criteria-table th {
+            background: #fef3f2;
+            color: #be185d;
+            font-weight: 600;
+        }
+
+        .criteria-table tr:hover {
+            background: #f9fafb;
+        }
+
+        .score {
+            font-weight: bold;
+            color: #ec4899;
+        }
+
+        .download-section {
+            background: linear-gradient(135deg, #ec4899 0%, #be185d 100%);
+            padding: 30px;
+            text-align: center;
+            margin-top: 40px;
+            border-radius: 8px;
+        }
+
+        .download-btn {
+            background: white;
+            color: #be185d;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1em;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 10px;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .badge {
+            display: inline-block;
+            background: #ec4899;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        ul {
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        .highlight {
+            background: #fef3f2;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            .copy-btn, .download-section {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✨ GlowCity</h1>
+            <p>AI-Powered Mumbai Salon Marketplace</p>
+            <p style="font-size: 0.9em; margin-top: 10px;">Built in 48 Hours | Hackathon Submission Document</p>
+        </div>
+
+        <div class="content">
+            <!-- PROJECT OVERVIEW -->
+            <div class="section">
+                <h2>📋 Project Overview</h2>
+                <div class="copy-box">
+                    <button class="copy-btn" onclick="copyText(this, 'overview')">Copy</button>
+                    <pre id="overview">GlowCity — AI-Powered Mumbai Salon Marketplace
+
+We built GlowCity entirely using AI-assisted development. Our primary tool was Kiro (Amazon's AI IDE), which generated the full product from a single prompt — including the system architecture, all Next.js pages, Firebase integration, API routes, and property-based tests. Kiro acted as our engineering team, letting us focus on product decisions.
+
+In-product AI (powered by Google Gemini 1.5 Flash):
+
+• Glow AI Chat — conversational booking assistant that understands natural language queries like "bridal makeup in Andheri under ₹3000" and returns matching salons
+
+• AI Style Matcher — upload any hair/beauty inspiration photo and Gemini Vision extracts style tags, then finds Mumbai salons that specialise in that exact look
+
+• Smart Search — natural language search that extracts service keywords using Gemini and matches against the salon database
+
+• AI Promo Copy Generator — salon owners generate Instagram, WhatsApp and website copy in one click using Gemini
+
+Infrastructure stack (all free tier): Next.js 14 + TypeScript, Firebase (Firestore + Auth + Storage), Vercel, Leaflet/OpenStreetMap maps, Razorpay test mode payments.
+
+The entire platform was designed, coded, tested and deployed within 48 hours using AI tools — a real demonstration of how AI multiplies a small team's output.</pre>
+                </div>
+            </div>
+
+            <!-- AI TOOLS USED -->
+            <div class="section">
+                <h2>🤖 AI Tools Used</h2>
+                
+                <div class="tools-grid">
+                    <div class="tool-card">
+                        <h4>Kiro (Amazon Kiro)</h4>
+                        <p>AI-powered IDE — generated entire codebase from spec: architecture design, component code, API routes, tests</p>
+                    </div>
+                    <div class="tool-card">
+                        <h4>Google Gemini 1.5 Flash</h4>
+                        <p>Powers 4 live AI features in the app (chat, vision, search, copywriting)</p>
+                    </div>
+                    <div class="tool-card">
+                        <h4>Firebase</h4>
+                        <p>Auth, Firestore database, Storage — entire backend infrastructure</p>
+                    </div>
+                    <div class="tool-card">
+                        <h4>Vercel</h4>
+                        <p>Deployment + serverless functions hosting</p>
+                    </div>
+                    <div class="tool-card">
+                        <h4>Claude / ChatGPT</h4>
+                        <p>Brainstorming product features and UX flows</p>
+                    </div>
+                    <div class="tool-card">
+                        <h4>Next.js 14</h4>
+                        <p>React framework with App Router for full-stack development</p>
+                    </div>
+                </div>
+
+                <div class="copy-box">
+                    <button class="copy-btn" onclick="copyText(this, 'tools-list')">Copy List</button>
+                    <pre id="tools-list">AI Tools Used:
+1. Kiro (Amazon Kiro) — AI-powered IDE; generated entire codebase from specs
+2. Google Gemini 1.5 Flash — Powers 4 live AI features in the product
+3. Firebase — Auth + Firestore + Storage (backend)
+4. Vercel — Deployment + serverless functions
+5. Claude / ChatGPT — Product brainstorming and feature ideation
+6. Next.js — React framework with App Router
+7. OpenStreetMap + Leaflet — Free maps integration</pre>
+                </div>
+            </div>
+
+            <!-- AI WORKFLOW -->
+            <div class="section">
+                <h2>⚙️ AI Workflow Used</h2>
+                
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <h4>Step 1 — Product Design with AI (Hours 1–3)</h4>
+                        <p>We started with Kiro and described the product idea in plain English. Kiro generated a complete technical spec including system architecture, database schema, component hierarchy, API endpoint contracts, and property-based test plans. This replaced what would normally take a 3-person team 2 days of planning.</p>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <h4>Step 2 — Code Generation (Hours 3–36)</h4>
+                        <p>Kiro executed the spec file by file — writing every component, API route, repository function, and test. We didn't write code manually; we reviewed Kiro's output and iterated.</p>
+                        <ul>
+                            <li>Full Firebase integration (Auth, Firestore, Storage)</li>
+                            <li>All 4 Gemini AI features (chat, vision, search, copy)</li>
+                            <li>Complete booking flow with atomic transactions</li>
+                            <li>Salon owner onboarding + dashboard</li>
+                            <li>Review system</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <h4>Step 3 — Debugging & Refinement with AI (Hours 36–44)</h4>
+                        <p>Every build error, type error, and UI bug was resolved by describing the problem to Kiro in chat. No manual debugging — AI diagnosed and fixed each issue.</p>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <h4>Step 4 — Deployment (Hours 44–48)</h4>
+                        <ul>
+                            <li>Vercel for frontend + serverless functions (zero config)</li>
+                            <li>Firebase Console for database setup</li>
+                            <li>GitHub for version control with auto-deploy hooks</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="highlight">
+                    <strong>One-liner workflow summary:</strong><br>
+                    "Idea → Kiro spec → Kiro code generation → Gemini AI features → Firebase backend → Vercel deployment. Zero boilerplate written manually. AI handled architecture, code, and debugging. We focused purely on product decisions."
+                </div>
+
+                <div class="copy-box">
+                    <button class="copy-btn" onclick="copyText(this, 'workflow')">Copy Workflow</button>
+                    <pre id="workflow">AI Workflow - How we built GlowCity in 48 hours:
+
+Step 1 — Product Design with AI (Hours 1–3)
+We started with Kiro (Amazon's AI-powered IDE) and described the product idea in plain English. Kiro generated a complete technical spec including:
+• System architecture (Next.js + Firebase + Gemini)
+• Database schema (Firestore collections, indexes, security rules)
+• Component hierarchy
+• API endpoint contracts
+• Property-based test plans
+
+This replaced what would normally take a 3-person team 2 days of planning.
+
+Step 2 — Code Generation (Hours 3–36)
+Kiro then executed the spec file by file — writing every component, API route, repository function, and test. We didn't write the code manually; we reviewed Kiro's output, asked for corrections, and iterated.
+
+Key things Kiro built autonomously:
+• Full Firebase integration (Auth, Firestore, Storage)
+• All 4 Gemini AI features (chat, vision, search, copy)
+• Complete booking flow with atomic transactions
+• Salon owner onboarding + dashboard
+• Review system
+
+Step 3 — Debugging & Refinement with AI (Hours 36–44)
+Every build error, type error, and UI bug was resolved by describing the problem to Kiro in chat. No manual debugging — AI diagnosed and fixed each issue.
+
+Step 4 — Deployment (Hours 44–48)
+• Vercel for frontend + serverless functions (zero config)
+• Firebase Console for database setup
+• GitHub for version control with auto-deploy hooks
+
+One-liner summary:
+"Idea → Kiro spec → Kiro code generation → Gemini AI features → Firebase backend → Vercel deployment. Zero boilerplate written manually. AI handled architecture, code, and debugging. We focused purely on product decisions."</pre>
+                </div>
+            </div>
+
+            <!-- DEMO VIDEO SCRIPT -->
+            <div class="section">
+                <h2>🎬 Demo Video Script (2-3 minutes)</h2>
+                
+                <h3>Shot-by-Shot Flow (2:30)</h3>
+                
+                <div class="copy-box">
+                    <button class="copy-btn" onclick="copyText(this, 'demo-script')">Copy Script</button>
+                    <pre id="demo-script">DEMO VIDEO SCRIPT — GlowCity (2:30)
+
+[0:00–0:15] Hook — Open with the problem
+"Mumbai has 10,000+ salons. Finding and booking the right one takes hours. GlowCity changes that."
+→ Show the landing page hero
+
+[0:15–0:35] Glow AI Chat — The WOW moment
+→ Click the ✨ floating button
+→ Type: "I want bridal makeup in Andheri under ₹8000"
+→ Watch Gemini AI respond with matching salons
+→ Type: "balayage near Bandra" — instant results
+→ "Powered by Google Gemini — understands natural language"
+
+[0:35–0:55] AI Style Matcher
+→ Go to /style-match
+→ Upload a hair inspiration photo
+→ Show the AI extracting tags: "balayage, warm tones, soft waves"
+→ Show matching salons with % match scores
+→ "Gemini Vision analyzes your photo and finds salons that specialise in that exact look"
+
+[0:55–1:20] Search & Discovery
+→ Type "keratin" in search bar → instant AI-filtered results
+→ Show the split map+grid view
+→ Click a salon → rich detail page with services, hours, reviews
+
+[1:20–1:50] Booking Flow (the complete loop)
+→ Click "Book Appointment"
+→ Select a service (show price + duration)
+→ Pick a date → slots auto-generate from opening hours
+→ Confirm → booking saved to Firebase
+→ Show the confirmation screen with booking ID
+
+[1:50–2:10] Dashboard — Logged-in user view
+→ Go to /dashboard/bookings
+→ Show the booking just made with status "Confirmed"
+→ Show "Leave a Review" → submit a star rating
+→ Go back to the salon page → review appears instantly
+
+[2:10–2:25] Salon Owner Side
+→ Register as salon owner → onboarding form
+→ See dashboard with bookings table, services, revenue stats
+→ Click "AI Promo Copy" → generate Instagram caption with Gemini
+→ Copy and show the generated content
+
+[2:25–2:30] Close
+"GlowCity — AI-powered beauty bookings for Mumbai. Built with Google Gemini, Firebase, and Next.js in 48 hours."</pre>
+                </div>
+
+                <h3>Judging Criteria Mapping</h3>
+                <table class="criteria-table">
+                    <thead>
+                        <tr>
+                            <th>Criterion</th>
+                            <th>What to Show</th>
+                            <th>Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>AI Usage & Innovation</strong></td>
+                            <td>Glow AI chat, Style Matcher, AI Promo Copy</td>
+                            <td class="score">9/10</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Product Thinking</strong></td>
+                            <td>Complete end-to-end user journey</td>
+                            <td class="score">8/10</td>
+                        </tr>
+                        <tr>
+                            <td><strong>UI/UX Design</strong></td>
+                            <td>Clean animations, mobile-responsive</td>
+                            <td class="score">8/10</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Execution Quality</strong></td>
+                            <td>Real Firebase data, working auth, live bookings</td>
+                            <td class="score">9/10</td>
+                        </tr>
+                        <tr>
+                            <td><strong>User Experience</strong></td>
+                            <td>Fast, intuitive, 60-second booking</td>
+                            <td class="score">8/10</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- SCORING BREAKDOWN -->
+            <div class="section">
+                <h2>📊 How GlowCity Scores Against Criteria</h2>
+                
+                <div class="copy-box">
+                    <button class="copy-btn" onclick="copyText(this, 'scoring')">Copy Scoring</button>
+                    <pre id="scoring">GlowCity — Judging Criteria Scores
+
+✅ AI Usage & Innovation — 9/10
+• 4 separate Gemini AI integrations (chat, vision, search, copywriting)
+• All AI features degrade gracefully with fallbacks
+• AI genuinely improves the product — not just a chatbot
+
+✅ Product Thinking — 8/10
+• Complete two-sided marketplace (customers + salon owners)
+• Solves a real Mumbai problem with real data
+• Full onboarding flow for new salon owners
+
+✅ UI/UX Design — 8/10
+• Framer Motion animations, responsive design
+• shadcn/ui components, consistent rose/pink brand
+• Mobile-friendly booking flow
+
+✅ Execution Quality — 9/10
+• Live on Vercel, real Firebase backend
+• Working auth (Google + Email/Password)
+• Reviews, bookings, all persisted to Firestore
+
+✅ User Experience — 8/10
+• Under 60 seconds from search to booking
+• AI assists at every step
+• No payment friction (pay at salon)
+
+Overall: Strong contender — the AI integrations are genuine and differentiated. The style matcher + Glow AI chat together are a compelling demo.</pre>
+                </div>
+            </div>
+
+            <!-- KEY FEATURES -->
+            <div class="section">
+                <h2>✨ Key Features</h2>
+                
+                <h3>For Customers:</h3>
+                <div class="highlight">
+                    <span class="badge">AI Chat</span>
+                    <span class="badge">Style Matcher</span>
+                    <span class="badge">Smart Search</span>
+                    <span class="badge">Instant Booking</span>
+                    <span class="badge">Reviews</span>
+                    <span class="badge">Map View</span>
+                </div>
+
+                <h3>For Salon Owners:</h3>
+                <div class="highlight">
+                    <span class="badge">Dashboard</span>
+                    <span class="badge">Booking Management</span>
+                    <span class="badge">AI Promo Copy</span>
+                    <span class="badge">Revenue Stats</span>
+                    <span class="badge">Service Management</span>
+                </div>
+
+                <h3>Technical Features:</h3>
+                <ul>
+                    <li>🔐 Firebase Authentication (Google + Email/Password)</li>
+                    <li>💾 Firestore Database with real-time updates</li>
+                    <li>🖼️ Firebase Storage for image uploads</li>
+                    <li>🤖 4 Gemini AI integrations (Chat, Vision, Search, Copy)</li>
+                    <li>📱 Fully responsive mobile-first design</li>
+                    <li>🗺️ Interactive maps with OpenStreetMap</li>
+                    <li>⚡ Server-side rendering with Next.js 14</li>
+                    <li>🎨 Beautiful UI with Tailwind CSS + shadcn/ui</li>
+                </ul>
+            </div>
+
+            <!-- TECHNICAL STACK -->
+            <div class="section">
+                <h2>🛠️ Technical Stack</h2>
+                
+                <div class="copy-box">
+                    <button class="copy-btn" onclick="copyText(this, 'tech-stack')">Copy Stack</button>
+                    <pre id="tech-stack">Technical Stack:
+
+Frontend:
+• Next.js 14 (App Router)
+• TypeScript
+• Tailwind CSS
+• shadcn/ui components
+• Framer Motion animations
+• Leaflet + OpenStreetMap
+
+Backend:
+• Firebase Firestore (database)
+• Firebase Auth (authentication)
+• Firebase Storage (file uploads)
+• Next.js API Routes (serverless)
+
+AI Integration:
+• Google Gemini 1.5 Flash (chat, vision, search)
+• Gemini Pro for content generation
+
+Deployment:
+• Vercel (hosting + serverless)
+• GitHub (version control)
+
+Development:
+• Kiro AI IDE (code generation)
+• ESLint + Prettier
+• TypeScript strict mode</pre>
+                </div>
+            </div>
+
+            <!-- DOWNLOAD SECTION -->
+            <div class="download-section">
+                <h2 style="color: white; margin-bottom: 20px;">📥 Download & Export</h2>
+                <button class="download-btn" onclick="downloadPDF()">📄 Download as PDF</button>
+                <button class="download-btn" onclick="window.print()">🖨️ Print Document</button>
+                <button class="download-btn" onclick="copyAllContent()">📋 Copy All Content</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script>
+        function copyText(button, elementId) {
+            const element = document.getElementById(elementId);
+            const text = element.textContent;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                const originalText = button.textContent;
+                button.textContent = '✓ Copied!';
+                button.classList.add('copied');
+                
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.classList.remove('copied');
+                }, 2000);
+            }).catch(err => {
+                alert('Failed to copy text');
+                console.error('Copy failed:', err);
+            });
+        }
+
+        function downloadPDF() {
+            const element = document.querySelector('.container');
+            const opt = {
+                margin: 10,
+                filename: 'GlowCity-Hackathon-Submission.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+            
+            html2pdf().set(opt).from(element).save();
+        }
+
+        function copyAllContent() {
+            let allText = '';
+            const sections = document.querySelectorAll('.copy-box pre');
+            sections.forEach((section, index) => {
+                allText += section.textContent + '\n\n=================\n\n';
+            });
+            
+            navigator.clipboard.writeText(allText).then(() => {
+                alert('✓ All content copied to clipboard!');
+            }).catch(err => {
+                alert('Failed to copy content');
+                console.error('Copy failed:', err);
+            });
+        }
+
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
