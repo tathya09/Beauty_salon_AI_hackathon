@@ -74,7 +74,7 @@ export function BookingCalendar({ salonId, onSelectSlot, serviceDuration = 60 }:
 
         // Fallback: generate slots on-the-fly from opening hours
         // Filter out slots that already have bookings
-        const generated = generateSlots(salonId, selectedDate, serviceDuration, openingHours)
+        const generated = generateSlots(salonId, selectedDate, serviceDuration, openingHours ?? DEFAULT_HOURS)
         setSlots(generated.filter((s) => s.isAvailable))
       } catch {
         // Final fallback: generate from default hours

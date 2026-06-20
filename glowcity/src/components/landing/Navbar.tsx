@@ -30,7 +30,7 @@ export function Navbar() {
     router.refresh()
   }
 
-  const displayName = user?.displayName || firebaseUser?.displayName || firebaseUser?.email?.split('@')[0] || 'User'
+  const displayName = firebaseUser?.displayName || user?.displayName || firebaseUser?.email?.split('@')[0] || 'User'
   const initials = displayName.split(' ').map((w: string) => w[0]).join('').toUpperCase().slice(0, 2)
   const photoURL = user?.photoURL || firebaseUser?.photoURL
 

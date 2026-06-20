@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { collection, query, where, getDocs, orderBy, limit } from 'firebase/firestore'
+import { collection, query, where, getDocs, limit } from 'firebase/firestore'
 import { db } from '@/lib/firebase/client'
 import { useAuth } from '@/hooks/useAuth'
 import { Card, CardContent } from '@/components/ui/card'
@@ -93,8 +93,8 @@ export default function BookingsPage() {
           .map((d) => ({ ...d.data(), id: d.id } as BookingWithMeta))
           // Sort client-side by createdAt descending
           .sort((a, b) => {
-            const aTime = (a as any).createdAt?.seconds ?? 0
-            const bTime = (b as any).createdAt?.seconds ?? 0
+            const aTime = (a as BookingWithMeta & { createdAt?: { seconds: number } }).createdAt?.seconds ?? 0
+            const bTime = (b as BookingWithMeta & { createdAt?: { seconds: number } }).createdAt?.seconds ?? 0
             return bTime - aTime
           })
         setBookings(items)

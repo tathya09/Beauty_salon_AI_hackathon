@@ -58,7 +58,8 @@ export async function POST(req: NextRequest) {
     const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
 
     // Derive tags from service categories
-    const tags = [...new Set(services.map((s: { category: string }) => s.category))] as string[]
+    const categorySet = new Set<string>(services.map((s: { category: string }) => s.category))
+    const tags = Array.from(categorySet)
 
     const salonRef = adminDb.collection('salons').doc()
     const salonData = {

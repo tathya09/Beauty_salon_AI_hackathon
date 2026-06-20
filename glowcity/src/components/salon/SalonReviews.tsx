@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -51,7 +51,7 @@ export function SalonReviews({ salonId }: { salonId: string }) {
   const [rating, setRating] = useState(5)
   const [comment, setComment] = useState('')
 
-  async function fetchReviews() {
+  const fetchReviews = useCallback(async () => {
     try {
       const res = await fetch(`/api/reviews?salonId=${salonId}`)
       const data = await res.json()
@@ -61,9 +61,9 @@ export function SalonReviews({ salonId }: { salonId: string }) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [salonId])
 
-  useEffect(() => { fetchReviews() }, [salonId])
+  useEffect(() => { fetchReviews() }, [fetchReviews])
 
   async function submitReview() {
     if (!firebaseUser) { toast.error('Please sign in to leave a review'); return }

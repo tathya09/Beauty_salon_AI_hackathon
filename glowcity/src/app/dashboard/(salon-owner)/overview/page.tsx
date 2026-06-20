@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { collection, query, where, getDocs, orderBy, limit, doc, getDoc } from 'firebase/firestore'
+import { collection, query, where, getDocs, limit } from 'firebase/firestore'
 import { db } from '@/lib/firebase/client'
 import { useAuth } from '@/hooks/useAuth'
 import { Card, CardContent } from '@/components/ui/card'
@@ -22,7 +22,7 @@ const STATUS_STYLES: Record<string, string> = {
 }
 
 export default function OwnerOverviewPage() {
-  const { user, firebaseUser } = useAuth()
+  const { user } = useAuth()
   const [salon, setSalon] = useState<Salon | null>(null)
   const [services, setServices] = useState<Service[]>([])
   const [bookings, setBookings] = useState<(Booking & { salonName?: string; serviceName?: string; userEmail?: string })[]>([])
@@ -57,10 +57,13 @@ export default function OwnerOverviewPage() {
         const bookingsSnap = await getDocs(query(
           collection(db, 'bookings'),
           where('salonId', '==', salonDoc.id),
-          orderBy('createdAt', 'desc'),
           limit(50)
         ))
-        setBookings(bookingsSnap.docs.map((d) => ({ ...d.data(), id: d.id } as any)))
+        const rawBookings = bookingsSnap.docs.map((d) => ({
+          ...d.data(), id: d.id,
+        } as Booking & { salonName?: string; serviceName?: string; userEmail?: string; createdAt?: { seconds: number } }))
+        rawBookings.sort((a, b) => (b.createdAt?.seconds ?? 0) - (a.createdAt?.seconds ?? 0))
+        setBookings(rawBookings)
       } catch (err) {
         console.error('Owner dashboard load error:', err)
       } finally {
